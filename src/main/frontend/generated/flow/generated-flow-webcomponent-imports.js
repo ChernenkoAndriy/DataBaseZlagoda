@@ -3,6 +3,7 @@ import { injectGlobalWebcomponentCss } from 'Frontend/generated/jar-resources/th
 import '@vaadin/polymer-legacy-adapter/style-modules.js';
 import '@vaadin/vertical-layout/src/vaadin-vertical-layout.js';
 import '@vaadin/app-layout/src/vaadin-app-layout.js';
+import '@vaadin/side-nav/src/vaadin-side-nav.js';
 import '@vaadin/field-highlighter/src/vaadin-field-highlighter.js';
 import '@vaadin/common-frontend/ConnectionIndicator.js';
 import '@vaadin/accordion/src/vaadin-accordion.js';
@@ -63,7 +64,6 @@ import '@vaadin/select/src/vaadin-select.js';
 import 'Frontend/generated/jar-resources/selectConnector.js';
 import 'Frontend/generated/jar-resources/tooltip.ts';
 import 'Frontend/generated/jar-resources/disableOnClickFunctions.js';
-import '@vaadin/side-nav/src/vaadin-side-nav.js';
 import '@vaadin/side-nav/src/vaadin-side-nav-item.js';
 import '@vaadin/split-layout/src/vaadin-split-layout.js';
 import '@vaadin/tabs/src/vaadin-tab.js';

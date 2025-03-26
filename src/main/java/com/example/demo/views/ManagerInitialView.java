@@ -3,8 +3,10 @@ package com.example.demo.views;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
@@ -16,15 +18,26 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import database_manegment.database_entities.Employee;
 
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @Route("manager")
-public class ManagerInitialView extends AppLayout {
-    private Grid<Employee> workers;
-    private SideNav sideNav;
+public class ManagerInitialView extends OverallView<Employee> {
     private TextField filterField;
     private Dialog addEmployeeDialog;
+    private ComboBox<String> rolefilter;
+    private Button searchButton;
+    private Button printButton;
+    private Button exportButton;
+    private Button addButton;
 
     public ManagerInitialView() {
-        workers = new Grid<>(Employee.class);
+        super(Employee.class);
+        initializeDialogueForm();
+    }
+    private void initializeDialogueForm() {
         addEmployeeDialog = new Dialog();
         AddEmployeeForm addEmployeeForm = new AddEmployeeForm();
         addEmployeeForm.setWidthFull();
@@ -32,44 +45,56 @@ public class ManagerInitialView extends AppLayout {
         addEmployeeDialog.setHeight("auto");
         addEmployeeDialog.add(addEmployeeForm);
         addEmployeeDialog.setModal(true);
+    }
 
-
-        // Верхня панель з кнопками
-        HorizontalLayout bar = new HorizontalLayout();
+    protected void modifyToolbar() {
         filterField = new TextField();
-        filterField.setPlaceholder("Фільтр за ім'ям або прізвищем");
-        filterField.addValueChangeListener(e -> filterEmployees(e.getValue()));
-
-        Button addButton = new Button("Додати працівника", e -> addEmployeeDialog.open());
-        bar.add(filterField, addButton);
-        bar.setSpacing(true);
-
-        // Верхня панель
-        DrawerToggle toggle = new DrawerToggle();
-        H1 title = new H1("Zlagoda");
-        title.getStyle().set("font-size", "var(--lumo-font-size-l)").set("margin", "0");
-
-        sideNav = new SideNav();
-        Scroller scroller = new Scroller(sideNav);
-        scroller.setClassName(LumoUtility.Padding.SMALL);
-
-        addToDrawer(scroller);
-        addToNavbar(toggle, title);
-
-        VerticalLayout content = new VerticalLayout(bar, workers);
-        content.setSizeFull();
-        setContent(content);
-
-        sideNav.setWidth("250px");
-        sideNav.addItem(new SideNavItem("Працівники"));
-        sideNav.addItem(new SideNavItem("Клієнти"));
-        sideNav.addItem(new SideNavItem("Товари"));
-        sideNav.addItem(new SideNavItem("Категорії товарів"));
-        sideNav.addItem(new SideNavItem("Види товарів"));
-        sideNav.addItem(new SideNavItem("Чеки"));
+        filterField.setPlaceholder("Find employee");
+        addButton = new Button("Add employee", e -> addEmployeeDialog.open());
+        addButton.addThemeName("primary");
+        addButton.setWidth("15%");
+        searchButton = new Button("Search");
+        searchButton.setWidth("15%");
+        searchButton.addThemeName("primary");
+        rolefilter = new ComboBox<>("", "All", "Managers", "Cashiers");
+        rolefilter.setValue("All");
+        exportButton = new Button("Export");
+        exportButton.addThemeName("primary");
+        exportButton.setWidth("15%");
+        printButton = new Button("Print");
+        printButton.setWidth("15%");
+        printButton.addThemeName("primary");
+        bar.add(rolefilter, addButton , exportButton, printButton, filterField, searchButton);
     }
 
-    private void filterEmployees(String filter) {
-        workers.setItems();
+    @Override
+    protected void modifyTable() {
+        table.addColumn(Employee::getEmpl_surname).setHeader("Surname");
+        table.addColumn(Employee::getEmpl_name).setHeader("Name");
+        table.addColumn(Employee::getEmpl_patronymic).setHeader("Patronymic");
+        table.addColumn(Employee::getEmpl_role).setHeader("Role");
+        table.addColumn(Employee::getDate_of_birth).setHeader("Birthdate");
+        table.addColumn(Employee::getDate_of_start).setHeader("Date of start");
+        table.addColumn(Employee::getCity).setHeader("City");
+        table.addColumn(Employee::getStreet).setHeader("Street");
+        table.addColumn(Employee::getSalary).setHeader("Salary");
+        table.addColumn(Employee::getZip_code).setHeader("Zip");
+        table.addColumn(Employee::getPhone_number).setHeader("Phone");
+        Employee employee = new Employee(
+                "E123", // id_employee
+                "Shevchenko", // empl_surname
+                "Taras", // empl_name
+                "Hryhorovych", // empl_patronymic
+                "Manager", // empl_role
+                new BigDecimal("2500.50"), // salary
+                new Date(85, 9, 1), // date_of_birth (1 жовтня 1985) -> старий API
+                new Date(120, 0, 15), // date_of_start (15 січня 2020)
+                "+380971234567", // phone_number
+                "Kyiv", // city
+                "Khreshchatyk", // street
+                "01001" // zip_code
+        );
+        table.setItems(employee);
     }
+
 }
