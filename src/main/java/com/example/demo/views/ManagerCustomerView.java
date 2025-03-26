@@ -16,7 +16,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import database_manegment.database_entities.CustomerCard;
 import database_manegment.database_entities.Employee;
-
+//TODO
 @Route("customers")
 public class ManagerCustomerView extends OverallView<CustomerCard>{
 

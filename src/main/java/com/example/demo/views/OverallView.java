@@ -7,9 +7,10 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
-//це буде наш батьківський клас, від якого будуть наслідуватись інші(поки працюємо тільки з менеджерами, касира зробимо потім)
+//це буде наш батьківський клас, від якого будуть наслідуватись інші сторінки(поки працюємо тільки з менеджерами, касира зробимо потім)
 //він містить в собі бокове меню, що дозволяє рухатись по сторінкам
 //воно готове і міняти його не треба
 //також містить бар з кнопками які доведеться реалізовувати у нащадках
@@ -17,6 +18,9 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 public class OverallView<T> extends AppLayout {
     protected Grid<T> table;
     protected SideMenu sidemenu;
+
+    //колекція що буде зберігати дані для таблички
+    protected ListDataProvider<T> dataProvider;
     protected HorizontalLayout bar;
 //в конструктор ми передаємо тип класу для таблиці. наприклад Employee.class, якщо працюємо з працівниками на сторінці
     public OverallView(Class<T> type) {
@@ -62,6 +66,6 @@ public class OverallView<T> extends AppLayout {
         content.setSizeFull();
         setContent(content);
     }
-
+//потрібне якщо ви хочете додати щось на найвищому елементі сторінки
     protected void modifyNavbar(){}
 }

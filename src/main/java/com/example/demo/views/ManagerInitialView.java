@@ -1,5 +1,6 @@
 package com.example.demo.views;
 
+import com.example.demo.views.viewmanagers.ManagerInitialViewManager;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
@@ -24,6 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Route("manager")
+//наслідуємось від OverallView а потім просто додаємо необхідні компоненти і перевизначаємо їх
+//у методах доступних з батьківського класу
 public class ManagerInitialView extends OverallView<Employee> {
     private TextField filterField;
     private Dialog addEmployeeDialog;
@@ -37,6 +40,8 @@ public class ManagerInitialView extends OverallView<Employee> {
         super(Employee.class);
         initializeDialogueForm();
     }
+    //цей метод потрібен для створення вікна що викликається при натиску add employee
+    //він використовує клас AddEmployeeForm і розміщає його у вікні просто
     private void initializeDialogueForm() {
         addEmployeeDialog = new Dialog();
         AddEmployeeForm addEmployeeForm = new AddEmployeeForm();
@@ -46,13 +51,13 @@ public class ManagerInitialView extends OverallView<Employee> {
         addEmployeeDialog.add(addEmployeeForm);
         addEmployeeDialog.setModal(true);
     }
-
+//тут ми додаємо всі елементи що знаходяться над табличкою
     protected void modifyToolbar() {
         filterField = new TextField();
         filterField.setPlaceholder("Find employee");
         addButton = new Button("Add employee", e -> addEmployeeDialog.open());
         addButton.addThemeName("primary");
-        addButton.setWidth("15%");
+        addButton.setWidth("20%");
         searchButton = new Button("Search");
         searchButton.setWidth("15%");
         searchButton.addThemeName("primary");
@@ -66,7 +71,7 @@ public class ManagerInitialView extends OverallView<Employee> {
         printButton.addThemeName("primary");
         bar.add(rolefilter, addButton , exportButton, printButton, filterField, searchButton);
     }
-
+//додаємо стовпчики до таблички, об'екти в табличках мусять мати геттери для всіх полів що будуть використані
     @Override
     protected void modifyTable() {
         table.addColumn(Employee::getEmpl_surname).setHeader("Surname");
@@ -80,21 +85,8 @@ public class ManagerInitialView extends OverallView<Employee> {
         table.addColumn(Employee::getSalary).setHeader("Salary");
         table.addColumn(Employee::getZip_code).setHeader("Zip");
         table.addColumn(Employee::getPhone_number).setHeader("Phone");
-        Employee employee = new Employee(
-                "E123", // id_employee
-                "Shevchenko", // empl_surname
-                "Taras", // empl_name
-                "Hryhorovych", // empl_patronymic
-                "Manager", // empl_role
-                new BigDecimal("2500.50"), // salary
-                new Date(85, 9, 1), // date_of_birth (1 жовтня 1985) -> старий API
-                new Date(120, 0, 15), // date_of_start (15 січня 2020)
-                "+380971234567", // phone_number
-                "Kyiv", // city
-                "Khreshchatyk", // street
-                "01001" // zip_code
-        );
-        table.setItems(employee);
+        //це вже ініціалізація даних, для фронта це не потрібно
+        dataProvider = ManagerInitialViewManager.fillTheTable(table);
     }
 
 }

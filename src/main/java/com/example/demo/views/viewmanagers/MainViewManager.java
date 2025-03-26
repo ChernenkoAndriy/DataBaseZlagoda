@@ -10,11 +10,15 @@ import database_manegment.database_entities.DatabaseConnectionPool;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
+//цей клас бекенд репрезентація MainView, що надає статичний метод для логіну
+//ми змінимо його в майбутньому щоб допилити шифрування
 public class MainViewManager {
+    //всі запити ми будемо робити ось так
+    //якщо дані в запит підставляються, то позначаємо їх знаком ?
     private static final String QUERY =
             "SELECT empl_role FROM \"Employee\" WHERE empl_name = ? AND empl_surname = ? AND zip_code = ?";
-
+    //метод через isValidUser перевіряє дані в базі даних а потім направляє на наступну сторінку залежно від
+    //ролі користувача або каже про помилку при реєстрації
     public static boolean authenticate(String username, String password, LoginForm loginForm) {
         String[] nameAndSurname = username.split(" ");
         if (nameAndSurname.length < 2) {
@@ -35,15 +39,15 @@ public class MainViewManager {
             return false;
         }
     }
-
+    //робить запит в бд
     public static int isValidUser(String username, String surname, String password) {
-        try (Connection conn = DatabaseConnectionPool.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(QUERY)) {
+        try (Connection conn = DatabaseConnectionPool.getConnection();//ось так започатковувати з'єднання з бд
+             PreparedStatement stmt = conn.prepareStatement(QUERY)) {//загортаємо запит в такий об'єкт для безепеки
             stmt.setString(1, surname);
             stmt.setString(2, username);
-            stmt.setString(3, password);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
+            stmt.setString(3, password); //підставляємо дані замість ?
+            ResultSet rs = stmt.executeQuery();//отримуємо колекцію з результатом запиту
+            while (rs.next()) {//ітеруємо по колекції
                 String role = rs.getString("empl_role");
                 if ("Cashier".equals(role)) {
                     return 1;
@@ -54,6 +58,6 @@ public class MainViewManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return 0;
+        return 0; //повертаємо числа 0 1 2 якщо працівника немає, його посада касир, його посада менеджер
     }
 }

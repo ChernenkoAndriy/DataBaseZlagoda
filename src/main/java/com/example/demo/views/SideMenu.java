@@ -2,7 +2,9 @@ package com.example.demo.views;
 
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
-
+//ось тут аргументи path в конструкторі це назви route майбутніх сторінок. коли створюєте сторінку вибирайте
+// один з вільних route тут. Інакше бокова менюшка перенаправить вас не на сторінку яку ви хотіли а впусте місце.
+// Що таке route і навіщо він читати в MainView
 public class SideMenu extends SideNav {
 
     public SideMenu() {
