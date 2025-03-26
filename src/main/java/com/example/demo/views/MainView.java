@@ -1,9 +1,7 @@
-package com.example.demo;
+package com.example.demo.views;
 
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
+import com.example.demo.views.viewmanagers.MainViewManager;
 import com.vaadin.flow.component.login.LoginForm;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 //клас репрезентує головну сторінку(в нашому випадку логін сторінку)
@@ -22,7 +20,7 @@ public class MainView extends VerticalLayout { //класи для сторін�
         loginForm = new LoginForm();
         loginForm.setForgotPasswordButtonVisible(false); //прибирає кнопку для забутого пароля
         // (у нас всі будуть його пам'ятати)
-        loginForm.addLoginListener(loginEvent -> authenticate(loginEvent.getUsername(),
+        loginForm.addLoginListener(loginEvent -> MainViewManager.authenticate(loginEvent.getUsername(),
                 loginEvent.getPassword(), loginForm));
         //метод назначає метод на кнопку login
         //за допопмогою lambda вона буде виконувати authenticate з параметрами формочки
@@ -35,26 +33,5 @@ public class MainView extends VerticalLayout { //класи для сторін�
 
     //метод отримує результат аутентифікації через бд і
     // в залежності від його результату переправляє користувача на наступну сторінку, чи каже що щось не те
-    private boolean authenticate(String username, String password, LoginForm loginForm) {
-        if (isValidUser(username, password)==1) {
-            UI.getCurrent().navigate(CashierInitialView.class);
-            return true;
-        } else if(isValidUser(username, password)==2){
-            UI.getCurrent().navigate(ManagerInitialView.class);
-            return true;
-        }else {
-            Notification.show("Invalid username or password", 3000, Notification.Position.MIDDLE);
-            loginForm.setError(true);
-            return false;
-        }
-    }
 
-    //мусить перевіряти чи є такий робітник і який у нього статус
-    //якщо касир віддає 1
-    //якщо менеджер 2
-    //0 якщо такого немає
-    private int isValidUser(String username, String password) {
-        //TODO
-        return 1;
-    }
 }
