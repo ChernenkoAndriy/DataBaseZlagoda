@@ -44,7 +44,7 @@ public class ManagerInitialView extends OverallView<Employee> {
     //він використовує клас AddEmployeeForm і розміщає його у вікні просто
     private void initializeDialogueForm() {
         addEmployeeDialog = new Dialog();
-        AddEmployeeForm addEmployeeForm = new AddEmployeeForm();
+        AddEmployeeForm addEmployeeForm = new AddEmployeeForm(dataProvider, data, addEmployeeDialog);
         addEmployeeForm.setWidthFull();
         addEmployeeDialog.setWidth("70%");
         addEmployeeDialog.setHeight("auto");
@@ -85,8 +85,7 @@ public class ManagerInitialView extends OverallView<Employee> {
         table.addColumn(Employee::getSalary).setHeader("Salary");
         table.addColumn(Employee::getZip_code).setHeader("Zip");
         table.addColumn(Employee::getPhone_number).setHeader("Phone");
-        //це вже ініціалізація даних, для фронта це не потрібно
-        dataProvider = ManagerInitialViewManager.fillTheTable(table);
+        dataProvider = ManagerInitialViewManager.fillTheTable(table, data);
     }
 
 }

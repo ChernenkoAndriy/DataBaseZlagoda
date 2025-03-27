@@ -10,6 +10,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
+import java.util.ArrayList;
+
 //це буде наш батьківський клас, від якого будуть наслідуватись інші сторінки(поки працюємо тільки з менеджерами, касира зробимо потім)
 //він містить в собі бокове меню, що дозволяє рухатись по сторінкам
 //воно готове і міняти його не треба
@@ -19,8 +21,10 @@ public class OverallView<T> extends AppLayout {
     protected Grid<T> table;
     protected SideMenu sidemenu;
 
-    //колекція що буде зберігати дані для таблички
+    //колекція що буде відображати дані в табличці
     protected ListDataProvider<T> dataProvider;
+    //колекція що буде зберігати дані в табличці
+    protected ArrayList<T> data;
     protected HorizontalLayout bar;
 //в конструктор ми передаємо тип класу для таблиці. наприклад Employee.class, якщо працюємо з працівниками на сторінці
     public OverallView(Class<T> type) {
@@ -59,6 +63,7 @@ public class OverallView<T> extends AppLayout {
     }
 //ініціалізація об'єкта таблиці та додавання компонентів на сайт
     private void initializeContent(Class<T> type) {
+        data = new ArrayList<>();
         table = new Grid<>(type, false);
         table.setMinWidth("120%");
         VerticalLayout content = new VerticalLayout();

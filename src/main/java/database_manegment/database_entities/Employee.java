@@ -1,10 +1,7 @@
 package database_manegment.database_entities;
 
-import jakarta.validation.constraints.NotNull;
-
 import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.Date;
+import java.sql.Date;
 
 public class Employee{
 
@@ -84,7 +81,7 @@ private String zip_code;
         this.salary = salary;
     }
 
-    public Date getDate_of_birth() {
+    public java.sql.Date getDate_of_birth() {
         return date_of_birth;
     }
 
@@ -92,7 +89,7 @@ private String zip_code;
         this.date_of_birth = date_of_birth;
     }
 
-    public Date getDate_of_start() {
+    public java.sql.Date getDate_of_start() {
         return date_of_start;
     }
 
