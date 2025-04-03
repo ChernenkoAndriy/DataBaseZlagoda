@@ -1,6 +1,6 @@
 package com.example.demo.views;
 
-import com.example.demo.views.viewmanagers.MainViewManager;
+import com.example.demo.views.viewmanagers.MainViewService;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
@@ -22,7 +22,7 @@ public class MainView extends VerticalLayout { //класи для сторін�
         loginForm = new LoginForm();
         loginForm.setForgotPasswordButtonVisible(false); //прибирає кнопку для забутого пароля
         // (у нас всі будуть його пам'ятати)
-        loginForm.addLoginListener(loginEvent -> MainViewManager.authenticate(loginEvent.getUsername(),
+        loginForm.addLoginListener(loginEvent -> MainViewService.authenticate(loginEvent.getUsername(),
                 loginEvent.getPassword(), loginForm));
         //метод назначає метод на кнопку login
         //за допопмогою lambda вона буде виконувати authenticate з параметрами формочки

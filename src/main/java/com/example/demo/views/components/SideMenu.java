@@ -1,4 +1,4 @@
-package com.example.demo.views;
+package com.example.demo.views.components;
 
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;

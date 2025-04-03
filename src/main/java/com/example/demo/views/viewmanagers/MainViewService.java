@@ -1,7 +1,7 @@
 package com.example.demo.views.viewmanagers;
 
 import com.example.demo.views.CashierInitialView;
-import com.example.demo.views.ManagerInitialView;
+import com.example.demo.views.ManagerEmployeeView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.notification.Notification;
@@ -12,7 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 //цей клас бекенд репрезентація MainView, що надає статичний метод для логіну
 //ми змінимо його в майбутньому щоб допилити шифрування
-public class MainViewManager {
+public class MainViewService {
     //всі запити ми будемо робити ось так
     //якщо дані в запит підставляються, то позначаємо їх знаком ?
     private static final String QUERY =
@@ -31,7 +31,7 @@ public class MainViewManager {
             UI.getCurrent().navigate(CashierInitialView.class);
             return true;
         } else if (userRole == 2) {
-            UI.getCurrent().navigate(ManagerInitialView.class);
+            UI.getCurrent().navigate(ManagerEmployeeView.class);
             return true;
         } else {
             Notification.show("Invalid username or password", 3000, Notification.Position.MIDDLE);

@@ -1,7 +1,7 @@
 package com.example.demo.views;
 
 import com.example.demo.views.components.*;
-import com.example.demo.views.viewmanagers.MCService;
+import com.example.demo.views.viewmanagers.MEService;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.grid.Grid;
@@ -11,26 +11,25 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import database_manegment.database_entities.CustomerCard;
 import database_manegment.database_entities.Employee;
 import java.util.ArrayList;
 
-@Route("customers")
-public class ManagerCustomerView extends AppLayout {
+@Route("manager")
+public class ManagerEmployeeView extends AppLayout {
     private SideMenu sidemenu;
-    private final ListDataProvider<CustomerCard> dataProvider;
-    private final Grid<CustomerCard> table;
-    private final ArrayList<CustomerCard> data;
-    private final CustomerToolbar bar;
-    private MCService mcService;
+    private final ListDataProvider<Employee> dataProvider;
+    private final Grid<Employee> table;
+    private final ArrayList<Employee> data;
+    private final EmployeeToolbar bar;
+    private MEService MEService;
 
-    public ManagerCustomerView() {
+    public ManagerEmployeeView() {
         this.data = new ArrayList<>();
         this.dataProvider = new ListDataProvider<>(data);
-        this.mcService = new MCService();
+        MEService = new MEService(data, dataProvider);
         this.sidemenu = new SideMenu();
-        this.table = new CustomerTable(dataProvider, mcService);
-        this.bar = new CustomerToolbar(mcService);
+        this.table = new EmployeeTable(dataProvider, MEService);
+        this.bar = new EmployeeToolbar(MEService);
         configureNavbar();
         configureDrawer();
         configureContent();
@@ -53,7 +52,7 @@ public class ManagerCustomerView extends AppLayout {
 
     private void configureContent() {
         bar.setWidth("100%");
-        table.setMinWidth("90%");
+        table.setMinWidth("130%");
         VerticalLayout tableContainer = new VerticalLayout(table);
         tableContainer.setSizeFull();
         tableContainer.setPadding(false);
