@@ -28,6 +28,8 @@ public class Check  implements IEntity<UUID>{
         this.sum_total = sum_total;
         this.vat = vat;
     }
+    public Check() {
+    }
     public UUID getCheck_number() {
         return check_number;
     }
