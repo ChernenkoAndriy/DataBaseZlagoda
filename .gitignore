@@ -33,3 +33,11 @@ build/
 ### VS Code ###
 .vscode/
 /.idea
+
+src/main/java/com/example/demo/views/services/JdbcConfig.java
+
+src/main/resources/application.properties
+
+.gitignore
+
+.DS_Store
