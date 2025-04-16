@@ -71,12 +71,12 @@ public class EmployeeService extends AbstractService<Employee, UUID>{
         });
 
     }
-    public void deleteEntity(UUID employeeId) {
+    public void deleteEntity(UUID id) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                if (employeeRepository.existsChecksLinkedTo(employeeId))
+                if (employeeRepository.existsChecksLinkedTo(id))
                     throw new ConstraintViolationException("Can`t delete the employee, as some checks are linked to him", null);
-                employeeRepository.delete(employeeId);
+                employeeRepository.delete(id);
             }
         });
 

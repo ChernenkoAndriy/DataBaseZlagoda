@@ -1,58 +1,48 @@
 package com.example.demo.views.services;
 
-import com.example.demo.views.repositories.database_entities.CustomerCard;
 import com.example.demo.views.repositories.CustomerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.demo.views.repositories.database_entities.CustomerCard;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 
-
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-
 @Service
-public class CustomerService {
-
-    private final CustomerRepository customerRepository;
-
-    @Autowired
-    public CustomerService(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
-    }
-    public List<CustomerCard> getAll() {
-        return customerRepository.findAll();
+public class CustomerService extends AbstractService<CustomerCard, UUID>{
+    private CustomerRepository repository;
+    public CustomerService(PlatformTransactionManager transactionManager, CustomerRepository repository) {
+        super(transactionManager);
+        this.repository=repository;
     }
 
-    public void save(CustomerCard customerCard) {
-        customerRepository.save(customerCard);
+    @Override
+    public List<CustomerCard> getAllEntities() {
+        return repository.findAll();
     }
 
-    public void delete(CustomerCard customerCard) {
-        customerRepository.delete(customerCard);
+    @Override
+    public void addEntity(CustomerCard e) {
+        repository.save(e);
     }
 
-    public Collection<CustomerCard> getAllCustomers() {
-        return customerRepository.findAll();
+    @Override
+    public void updateEntity(CustomerCard e) {
+        repository.update(e);
     }
 
-    public List<CustomerCard> getFilteredCustomers(String surname, Integer discount) {
-        if (surname != null && discount != null) {
-            return customerRepository.findByCustSurnameContainingIgnoreCaseAndPercent(surname, discount);
-        } else if (surname != null) {
-            return customerRepository.findByCustSurnameContainingIgnoreCase(surname);
-        } else if (discount != null) {
-            return customerRepository.findByPercent(discount);
-        } else {
-            return customerRepository.findAll();
-        }
+    @Override
+    public void deleteEntity(UUID id) {
+        repository.delete(id);
     }
 
-    public void saveCustomer(CustomerCard customer) {
-        customerRepository.save(customer);
+    @Override
+    public int countEntities() {
+        return repository.count();
     }
-
-    public void deleteCustomer(UUID id) {
-        customerRepository.deleteById(id);
+    public List<String> customersPhones(){
+        return repository.customersPhones();
     }
-
+    public CustomerCard getCustomer(String phoneNumber){
+        return repository.getCustomer(phoneNumber);
+    }
 }

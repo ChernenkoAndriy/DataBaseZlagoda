@@ -14,6 +14,6 @@ public abstract class AbstractService<T, TPK> {
     public abstract List<T> getAllEntities();
     public abstract void addEntity(T e);
     public abstract void updateEntity(T e);
-    public abstract void deleteEntity(TPK employeeId);
+    public abstract void deleteEntity(TPK id);
     public abstract int countEntities();
 }

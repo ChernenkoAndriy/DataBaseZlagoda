@@ -5,10 +5,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class Check  implements IEntity<UUID>{
+public class Check implements IEntity<UUID>{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID check_number;
@@ -16,19 +16,38 @@ public class Check  implements IEntity<UUID>{
     private UUID card_number;
     private LocalDateTime print_date;
     private BigDecimal sum_total;
+    private BigDecimal sum_final;
     private BigDecimal vat;
-    ArrayList<Store_Product> products;
+    private Employee cashier;
+    private CustomerCard customer;
+    private List<CheckEntry> goods;
+    public Check() {
 
-    public Check(ArrayList<Store_Product> products, UUID check_number, UUID id_employee, UUID card_number, LocalDateTime print_date, BigDecimal sum_total, BigDecimal vat) {
-        this.products = products;
+    }
+    public Check(UUID check_number,
+                 UUID id_employee,
+                 UUID card_number,
+                 LocalDateTime print_date,
+                 BigDecimal sum_total,
+                 BigDecimal vat) {
         this.check_number = check_number;
         this.id_employee = id_employee;
         this.card_number = card_number;
         this.print_date = print_date;
         this.sum_total = sum_total;
         this.vat = vat;
+        BigDecimal percent = BigDecimal.valueOf(customer.getPercent()).divide(BigDecimal.valueOf(100));
+        sum_final = sum_total.multiply(BigDecimal.ONE.subtract(percent));
+
     }
-    public Check() {
+    @Override
+    public UUID getId() {
+        return check_number;
+    }
+
+    @Override
+    public void setId(UUID id) {
+        this.check_number = id;
     }
     public UUID getCheck_number() {
         return check_number;
@@ -78,13 +97,83 @@ public class Check  implements IEntity<UUID>{
         this.vat = vat;
     }
 
-    @Override
-    public UUID getId() {
-        return check_number;
+    public Employee getCashier() {
+        return cashier;
     }
 
-    @Override
-    public void setId(UUID id) {
-        this.check_number = id;
+    public void setCashier(Employee cashier) {
+        this.cashier = cashier;
+    }
+    public CustomerCard getCustomer() {
+        return customer;
+    }
+    public String getCashierSurname(){
+        return cashier.getEmpl_surname();
+    }
+    public String getCashierName(){
+        return cashier.getEmpl_name();
+    }
+    public String getCashierPhone(){
+        return cashier.getPhone_number();
+    }
+    public String getCustomerSurname(){
+        return customer.getCustSurname();
+    }
+    public String getCustomerName(){
+        return customer.getCustSurname();
+    }
+    public String getCustomerPhone(){
+        return customer.getCustSurname();
+    }
+    public void setCashierSurname(String surname) {
+        if (cashier != null) {
+            cashier.setEmpl_surname(surname);
+        }
+    }
+
+    public void setCashierName(String name) {
+        if (cashier != null) {
+            cashier.setEmpl_name(name);
+        }
+    }
+
+    public void setCashierPhone(String phone) {
+        if (cashier != null) {
+            cashier.setPhone_number(phone);
+        }
+    }
+
+    public void setCustomerSurname(String surname) {
+        if (customer != null) {
+            customer.setCustSurname(surname);
+        }
+    }
+
+    public void setCustomerName(String name) {
+        if (customer != null) {
+            customer.setCustName(name);
+        }
+    }
+
+    public void setCustomerPhone(String phone) {
+        if (customer != null) {
+            customer.setPhoneNumber(phone);
+        }
+    }
+
+    public void setCustomer(CustomerCard customer) {
+        this.customer = customer;
+    }
+    public BigDecimal getSum_final() {
+        return sum_final;
+    }
+    public void setSum_final(BigDecimal sum_final) {
+        this.sum_final = sum_final;
+    }
+    public List<CheckEntry> getGoods() {
+        return goods;
+    }
+    public void setGoods(List<CheckEntry> goods) {
+        this.goods = goods;
     }
 }

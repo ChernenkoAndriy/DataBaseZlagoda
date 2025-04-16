@@ -1,10 +1,14 @@
 package com.example.demo.views;
 
 import com.example.demo.views.components.CheckPageComponents.CheckForm;
-import com.example.demo.views.components.CheckPageComponents.CheckToolbar;
 import com.example.demo.views.components.CheckPageComponents.CheckTable;
-import com.example.demo.views.services.CheckService;
+import com.example.demo.views.components.CheckPageComponents.CheckToolbar;
+import com.example.demo.views.components.EmployeePageComponents.EmployeeForm;
+import com.example.demo.views.repositories.StoreProductRepository;
 import com.example.demo.views.repositories.database_entities.Check;
+import com.example.demo.views.services.CheckService;
+import com.example.demo.views.services.CustomerService;
+import com.example.demo.views.services.StoreProductService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.button.Button;
@@ -19,53 +23,48 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.example.demo.views.repositories.database_entities.Employee;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.annotation.Scope;
-
-import java.util.List;
 
 @Route(value = "checks", layout = ManagerLayout.class)
 @SpringComponent
 @Scope("prototype")
 @PageTitle("Checks | ZLAGODA")
-public class ManagerChecksView extends AppLayout {
-
+public class CheckView extends AppLayout {
     protected CheckTable table;
     protected CheckToolbar bar;
-    protected CheckService service;
+    protected CheckService checkService;
+    protected CustomerService customerService;
+    protected StoreProductService storeProductService;
     protected CheckForm checkForm;
-
-    public ManagerChecksView(CheckService service) {
-        this.service = service;
-        this.checkForm = new CheckForm();
-        this.table = new CheckTable(service);
+    public CheckView(CheckService checkService, CustomerService customerService, StoreProductService storeProductService) {
+        this.checkForm = new CheckForm(customerService, storeProductService);
+        this.checkService = checkService;
+        this.customerService=customerService;
+        this.storeProductService=storeProductService;
+        this.table = new CheckTable(checkService);
         this.bar = new CheckToolbar();
         configureContent();
     }
-
     private void configureContent() {
         bar.setWidth("100%");
         table.setMinWidth("130%");
         table.asSingleSelect().addValueChangeListener(event ->
                 editCheck(event.getValue()));
-
         VerticalLayout tableContainer = new VerticalLayout(table);
         tableContainer.setSizeFull();
         tableContainer.setPadding(false);
         tableContainer.getStyle().set("overflow", "auto");
-
         VerticalLayout content = new VerticalLayout(bar, tableContainer);
         content.setSizeFull();
         setContent(content);
-
-        checkForm.addSaveListener(this::saveCheck);
-        checkForm.addDeleteListener(this::deleteCheck);
-        checkForm.addCloseListener(e -> closeEditor());
-
-        bar.getAddButton().addClickListener(e -> addCheck());
+     //   checkForm.addSaveListener(this::saveEmployee);
+      //  checkForm.addDeleteListener(this::deleteEmployee);
+     //   checkForm.addCloseListener(e -> closeEditor());
+        bar.getAddButton().addClickListener(e -> addEmployee());
         bar.addUpdateListener(e -> updateList());
     }
-
     private void showErrorNotification(String message) {
         Notification notification = new Notification();
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -80,52 +79,46 @@ public class ManagerChecksView extends AppLayout {
         notification.add(layout);
         notification.open();
     }
-
     private void closeEditor() {
         checkForm.setCheck(null);
         checkForm.close();
     }
-
     private void updateList() {
-        table.setItems(bar.getAllByFilters(service));
+        table.setItems(bar.getAllByfilters(checkService));
     }
-
-    private void saveCheck(CheckForm.SaveCheckEvent event) {
+    private void saveEmployee(EmployeeForm.SaveEmployeeEvent event) {
         try {
-            Check c = event.getCheck();
-            if (c.getId() == null) {
-                service.addEntity(c);
+            Employee e = event.getEmployee();
+            if (e.getId() == null) {
+     //           service.addEntity(e);
             } else {
-                service.updateEntity(c);
+    //            service.updateEntity(e);
             }
             updateList();
             closeEditor();
-        } catch (ConstraintViolationException e) {
-            checkForm.setInvalidData();
+        }catch (ConstraintViolationException e){
         }
     }
-
-    private void deleteCheck(CheckForm.DeleteCheckEvent event) {
+    private void deleteCheck(EmployeeForm.DeleteEmployeeEvent event) {
         try {
-            service.deleteEntity(event.getCheck().getId());
+  //          service.deleteEntity(event.getEmployee().getId());
             updateList();
             closeEditor();
         } catch (ConstraintViolationException er) {
             showErrorNotification(er.getMessage());
         }
     }
-
-    private void editCheck(Check check) {
-        if (check == null) {
+    private void editCheck(Check e) {
+        if (e == null) {
             closeEditor();
         } else {
-            checkForm.setCheck(check);
+            checkService.setGoodsForCheck(e);
+            checkForm.setCheck(e);
             checkForm.open();
             addClassName("editing");
         }
     }
-
-    private void addCheck() {
+    private void addEmployee(){
         table.asSingleSelect().clear();
         editCheck(new Check());
     }

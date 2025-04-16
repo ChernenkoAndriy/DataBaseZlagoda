@@ -1,5 +1,6 @@
 package com.example.demo.views.repositories;
 
+import com.example.demo.views.repositories.database_entities.CustomerCard;
 import com.example.demo.views.repositories.database_entities.Employee;
 import com.example.demo.views.repositories.mappers.EmployeeRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +41,9 @@ public abstract class AbstractRepository<T, TPK>{
         String sql = findAllQuery();
         return namedJdbcTemplate.query(sql, rowMapper);
     }
-    public Employee findById(TPK id) {
+    public T findById(TPK id) {
         String sql = findByIdQuery();
-        return namedJdbcTemplate.getJdbcTemplate().queryForObject(sql, new EmployeeRowMapper(), id);
+        return namedJdbcTemplate.getJdbcTemplate().queryForObject(sql, rowMapper, id);
     }
     public int delete(TPK id) {
         String sql = deleteQuery();

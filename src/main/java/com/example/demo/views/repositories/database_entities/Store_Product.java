@@ -15,14 +15,15 @@ public class Store_Product implements IEntity<UUID>{
     private BigDecimal selling_price;
     private int product_number;
     private boolean promotional_product;
-
-    public Store_Product(UUID UPC, UUID UPC_prom, int id_product, BigDecimal selling_price, int product_number, boolean promotional_product) {
+    private String product;
+    public Store_Product(UUID UPC, UUID UPC_prom, int id_product, BigDecimal selling_price, int product_number, boolean promotional_product, String product) {
         this.UPC = UPC;
         this.UPC_prom = UPC_prom;
         this.id_product = id_product;
         this.selling_price = selling_price;
         this.product_number = product_number;
         this.promotional_product = promotional_product;
+        this.product=product;
     }
     public UUID getUPC_prom() {
         return UPC_prom;
@@ -64,13 +65,26 @@ public class Store_Product implements IEntity<UUID>{
         this.promotional_product = promotional_product;
     }
 
+    public UUID getUPC() {
+        return UPC;
+    }
+
+    public void setUPC(UUID UPC) {
+        this.UPC = UPC;
+    }
     @Override
     public UUID getId() {
         return UPC;
     }
-
     @Override
     public void setId(UUID id) {
         this.UPC = id;
     }
+    public String getProduct() {
+        return product;
+    }
+    public void setProduct(String product) {
+        this.product = product;
+    }
+
 }
