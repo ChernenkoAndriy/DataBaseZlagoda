@@ -3,6 +3,7 @@ package com.example.demo.views.services;
 import com.example.demo.views.repositories.CheckEntryRepository;
 import com.example.demo.views.repositories.CheckRepository;
 import com.example.demo.views.repositories.database_entities.Check;
+import com.example.demo.views.repositories.database_entities.CheckEntry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -29,13 +30,13 @@ public class CheckService extends AbstractService<Check, UUID> {
     }
 
     @Override
-    public void addEntity(Check e) {
-        checkRepository.save(e);
+    public void addEntity(Check check) {
+                    checkRepository.save(check);
     }
 
     @Override
-    public void updateEntity(Check e) {
-        checkRepository.update(e);
+    public void updateEntity(Check check) {
+        checkRepository.update(check);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class CheckService extends AbstractService<Check, UUID> {
     }
 
     public void setGoodsForCheck(Check e) {
-        e.setGoods(checkEntryRepository.findById(e.getId()));
+        checkRepository.setGoodsFor(e);
     }
 
     public List<Check> findFilteredChecks(
@@ -62,4 +63,26 @@ public class CheckService extends AbstractService<Check, UUID> {
     ) {
         return checkRepository.findFilteredChecks(employeeSurname, employeePhone, customerSurname, customerPhone, dateFrom, dateTo);
     }
+
+    public int deleteCheckEntryWithReturn(UUID check, UUID storeProduct) {
+        return transactionTemplate.execute(status -> {
+            int returned = checkEntryRepository.returnGoods(check, storeProduct);
+            int deleted = checkEntryRepository.deleteSale(check, storeProduct);
+            return returned + deleted;
+        });
+    }
+
+    public void addCheckEntry(CheckEntry checkEntry) {
+        transactionTemplate.execute(e -> {
+            boolean productAvailable = checkEntryRepository.isProductAvailable(checkEntry.getStore_product(), checkEntry.getAmountOfProducts());
+            if (productAvailable) {
+                checkEntryRepository.save(checkEntry);
+            } else {
+                throw new IllegalArgumentException("Not enough product available for sale.");
+            }
+            return e;
+        });
+    }
+
+
 }

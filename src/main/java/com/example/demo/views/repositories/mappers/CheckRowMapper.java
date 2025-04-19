@@ -50,7 +50,7 @@ public class CheckRowMapper implements RowMapper<Check> {
 
         check.setCheck_number(UUID.fromString(rs.getString("check_number")));
         check.setPrint_date(rs.getTimestamp("print_date").toLocalDateTime());
-        check.setSum_total(rs.getBigDecimal("sum_total"));
+        check.setSum_final(rs.getBigDecimal("sum_total"));
         check.setVat(rs.getBigDecimal("vat"));
         return check;
     }

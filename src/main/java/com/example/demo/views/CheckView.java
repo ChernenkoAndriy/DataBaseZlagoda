@@ -4,7 +4,6 @@ import com.example.demo.views.components.CheckPageComponents.CheckForm;
 import com.example.demo.views.components.CheckPageComponents.CheckTable;
 import com.example.demo.views.components.CheckPageComponents.CheckToolbar;
 import com.example.demo.views.components.EmployeePageComponents.EmployeeForm;
-import com.example.demo.views.repositories.StoreProductRepository;
 import com.example.demo.views.repositories.database_entities.Check;
 import com.example.demo.views.services.CheckService;
 import com.example.demo.views.services.CustomerService;
@@ -27,6 +26,8 @@ import com.example.demo.views.repositories.database_entities.Employee;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.annotation.Scope;
 
+import java.util.ArrayList;
+
 @Route(value = "checks", layout = ManagerLayout.class)
 @SpringComponent
 @Scope("prototype")
@@ -39,7 +40,7 @@ public class CheckView extends AppLayout {
     protected StoreProductService storeProductService;
     protected CheckForm checkForm;
     public CheckView(CheckService checkService, CustomerService customerService, StoreProductService storeProductService) {
-        this.checkForm = new CheckForm(customerService, storeProductService);
+        this.checkForm = new CheckForm(customerService, storeProductService, checkService);
         this.checkService = checkService;
         this.customerService=customerService;
         this.storeProductService=storeProductService;
@@ -59,10 +60,10 @@ public class CheckView extends AppLayout {
         VerticalLayout content = new VerticalLayout(bar, tableContainer);
         content.setSizeFull();
         setContent(content);
-     //   checkForm.addSaveListener(this::saveEmployee);
-      //  checkForm.addDeleteListener(this::deleteEmployee);
-     //   checkForm.addCloseListener(e -> closeEditor());
-        bar.getAddButton().addClickListener(e -> addEmployee());
+        checkForm.addSaveListener(e -> saveCheck(e));
+        checkForm.addDeleteListener(this::deleteCheck);
+        checkForm.addCloseListener(e -> closeEditor());
+        bar.getAddButton().addClickListener(e -> addCheck());
         bar.addUpdateListener(e -> updateList());
     }
     private void showErrorNotification(String message) {
@@ -86,22 +87,23 @@ public class CheckView extends AppLayout {
     private void updateList() {
         table.setItems(bar.getAllByfilters(checkService));
     }
-    private void saveEmployee(EmployeeForm.SaveEmployeeEvent event) {
+    private void saveCheck(CheckForm.SaveCheckEvent event) {
         try {
-            Employee e = event.getEmployee();
+            Check e = event.getEntity();
             if (e.getId() == null) {
-     //           service.addEntity(e);
+                checkService.addEntity(e);
             } else {
-    //            service.updateEntity(e);
+                checkService.updateEntity(e);
             }
             updateList();
             closeEditor();
         }catch (ConstraintViolationException e){
+
         }
     }
-    private void deleteCheck(EmployeeForm.DeleteEmployeeEvent event) {
+    private void deleteCheck(CheckForm.DeleteCheckEvent event) {
         try {
-  //          service.deleteEntity(event.getEmployee().getId());
+            checkService.deleteEntity(event.getEntity().getId());
             updateList();
             closeEditor();
         } catch (ConstraintViolationException er) {
@@ -118,8 +120,10 @@ public class CheckView extends AppLayout {
             addClassName("editing");
         }
     }
-    private void addEmployee(){
+    private void addCheck(){
         table.asSingleSelect().clear();
-        editCheck(new Check());
+        Check check = new Check();
+        check.setGoods(new ArrayList<>());
+        editCheck(check);
     }
 }

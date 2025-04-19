@@ -109,7 +109,7 @@ public class ManagerEmployeeView extends AppLayout {
     //додає наново якщо такого немає
     private void saveEmployee(EmployeeForm.SaveEmployeeEvent event) {
         try {
-            Employee e = event.getEmployee();
+            Employee e = event.getEntity();
             if (e.getId() == null) {
                service.addEntity(e);
             } else {
@@ -126,7 +126,7 @@ public class ManagerEmployeeView extends AppLayout {
     //подивіться цей інтерфейс
     private void deleteEmployee(EmployeeForm.DeleteEmployeeEvent event) {
         try {
-            service.deleteEntity(event.getEmployee().getId());
+            service.deleteEntity(event.getEntity().getId());
             updateList();
             closeEditor();
         } catch (ConstraintViolationException er) {

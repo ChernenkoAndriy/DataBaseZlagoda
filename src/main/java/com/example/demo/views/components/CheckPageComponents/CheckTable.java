@@ -40,9 +40,6 @@ public class CheckTable extends Grid<Check> {
                 check.getPrint_date() != null ? check.getPrint_date().format(formatter) : ""
         ).setHeader("Time printed").setSortable(true));
 
-        columnsMap.put("Sum total", addColumn(Check::getSum_total)
-                .setHeader("Sum total").setSortable(true));
-
         columnsMap.put("Vat", addColumn(Check::getVat)
                 .setHeader("Vat").setSortable(true));
 

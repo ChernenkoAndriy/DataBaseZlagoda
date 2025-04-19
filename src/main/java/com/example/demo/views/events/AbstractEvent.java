@@ -1,7 +1,5 @@
 package com.example.demo.views.events;
 
-import com.example.demo.views.components.EmployeePageComponents.EmployeeForm;
-import com.example.demo.views.repositories.database_entities.Employee;
 import com.example.demo.views.repositories.database_entities.IEntity;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
@@ -13,7 +11,7 @@ public class AbstractEvent<SOURCE extends Component, ENTITY extends IEntity> ext
         this.e=e;
     }
 
-    public ENTITY getEmployee() {
+    public ENTITY getEntity() {
         return e;
     }
 }

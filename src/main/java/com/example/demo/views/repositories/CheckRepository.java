@@ -1,17 +1,18 @@
 package com.example.demo.views.repositories;
 
 import com.example.demo.views.repositories.database_entities.Check;
+import com.example.demo.views.repositories.database_entities.CheckEntry;
 import com.example.demo.views.repositories.mappers.CheckRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+
 @Repository
 public class CheckRepository{
     private NamedParameterJdbcTemplate namedJdbcTemplate;
@@ -26,14 +27,13 @@ public class CheckRepository{
     }
     protected String saveAllQuery() {
         return "INSERT INTO public.\"Check\" (" +
-                "check_number, card_number, print_date, sum_total, vat, id_employee" +
+                " card_number, print_date, sum_total, vat, id_employee" +
                 ") VALUES (" +
-                ":check_number, :card_number, :print_date, :sum_total, :vat, :id_employee" +
+                " :card_number, :print_date, :sum_total, :vat, :id_employee" +
                 ");";
     }
     protected String updateQuery() {
         return "UPDATE public.\"Check\" SET " +
-                "check_number = :check_number, " +
                 "card_number = :card_number, " +
                 "print_date = :print_date, " +
                 "sum_total = :sum_total, " +
@@ -61,7 +61,6 @@ public class CheckRepository{
     public void save(Check e) {
         String sql = saveAllQuery();
         SqlParameterSource namedParameters = new MapSqlParameterSource()
-                .addValue("check_number", e.getCheck_number())
                 .addValue("id_employee", e.getId_employee())
                 .addValue("card_number", e.getCard_number())
                 .addValue("print_date", e.getPrint_date())
@@ -72,21 +71,27 @@ public class CheckRepository{
     public void update(Check e) {
         String sql = updateQuery();
         SqlParameterSource namedParameters = new MapSqlParameterSource()
-                .addValue("check_number", e.getCheck_number())
                 .addValue("id_employee", e.getId_employee())
                 .addValue("card_number", e.getCard_number())
                 .addValue("print_date", e.getPrint_date())
                 .addValue("sum_total", e.getSum_total())
-                .addValue("vat", e.getVat());
+                .addValue("vat", e.getVat())
+                .addValue("check_number", e.getCheck_number());
         namedJdbcTemplate.update(sql, namedParameters);
     }
     public List<Check> findAll() {
         String sql = findAllQuery();
         List<Check> checks = namedJdbcTemplate.query(sql, rowMapper);
-        for(Check check : checks){
-            check.setGoods(checkEntryRepository.findById(check.getId()));
-        }
         return checks;
+    }
+    public void setGoodsFor(Check check){
+        BigDecimal sum = new BigDecimal(BigInteger.ZERO);
+        List<CheckEntry> goods = checkEntryRepository.findById(check.getId());
+        check.setGoods(goods);
+        for(CheckEntry entry : goods){
+            sum = sum.add(entry.getSelling_price());
+        }
+        check.setSum_total(sum);
     }
     public Check findById(UUID id) {
         String sql = findByIdQuery();
@@ -150,6 +155,7 @@ public class CheckRepository{
         return namedJdbcTemplate.query(sql.toString(), params, rowMapper);
 
     }
+
 
 
 }

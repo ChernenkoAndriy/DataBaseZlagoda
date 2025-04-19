@@ -5,10 +5,8 @@ import com.example.demo.views.repositories.mappers.CustomerCardRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+
 @Repository
 public class CustomerRepository extends AbstractRepository<CustomerCard, UUID> {
 
@@ -20,9 +18,8 @@ public class CustomerRepository extends AbstractRepository<CustomerCard, UUID> {
     @Override
     protected String saveAllQuery() {
         return "INSERT INTO public.\"Customer_Card\"(\n" +
-                "    card_number, cust_surname, cust_name, cust_patronymic, phone_number, city, street, zip_code, percent)\n" +
+                "   cust_surname, cust_name, cust_patronymic, phone_number, city, street, zip_code, percent)\n" +
                 "VALUES (\n" +
-                "    :cardNumber,\n" +
                 "    :custSurname,\n" +
                 "    :custName,\n" +
                 "    :custPatronymic,\n" +
@@ -38,7 +35,6 @@ public class CustomerRepository extends AbstractRepository<CustomerCard, UUID> {
     protected String updateQuery() {
         return "UPDATE public.\"Customer_Card\"\n" +
                 "SET\n" +
-                "    card_number = :cardNumber,\n" +
                 "    cust_surname = :custSurname,\n" +
                 "    cust_name = :custName,\n" +
                 "    cust_patronymic = :custPatronymic,\n" +
@@ -91,5 +87,52 @@ public class CustomerRepository extends AbstractRepository<CustomerCard, UUID> {
         );
     }
 
+    public List<CustomerCard> getAllBy(String surname, String phone, Integer percent) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM public.\"Customer_Card\" WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (surname != null) {
+            sql.append(" AND cust_surname ILIKE ?");
+            params.add("%" + surname + "%");
+        }
+        if (phone != null) {
+            sql.append(" AND phone_number ILIKE ?");
+            params.add("%" + phone + "%");
+        }
+        if (percent != null) {
+            sql.append(" AND percent = ?");
+            params.add(percent);
+        }
+
+        return namedJdbcTemplate
+                .getJdbcTemplate()
+                .query(sql.toString(), params.toArray(), rowMapper);
+    }
+
+    public boolean existsPhoneNumber(String number) {
+        String sql = "SELECT COUNT(*) FROM public.\"Customer_Card\" WHERE phone_number = :phoneNumber";
+        Map<String, Object> params = new HashMap<>();
+        params.put("phoneNumber", number);
+
+        Integer count = namedJdbcTemplate.queryForObject(sql, params, Integer.class);
+        return count != null && count > 0;
+    }
+
+    public boolean existsPhoneNumber(String number, UUID id) {
+        String sql = "SELECT COUNT(*) FROM public.\"Customer_Card\" " +
+                "WHERE phone_number = :phoneNumber AND card_number <> :cardNumber";
+        Map<String, Object> params = new HashMap<>();
+        params.put("phoneNumber", number);
+        params.put("cardNumber", id);
+
+        Integer count = namedJdbcTemplate.queryForObject(sql, params, Integer.class);
+        return count != null && count > 0;
+    }
+
+    public boolean existsChecksLinkedTo(UUID id) {
+        String sql = "SELECT COUNT(*) FROM \"Check\" WHERE card_number = ?";
+        int count = namedJdbcTemplate.getJdbcTemplate().queryForObject(sql, Integer.class, id);
+        return count > 0;
+    }
 
 }

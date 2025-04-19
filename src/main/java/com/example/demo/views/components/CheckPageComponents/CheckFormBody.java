@@ -3,7 +3,11 @@ package com.example.demo.views.components.CheckPageComponents;
 import com.example.demo.views.repositories.database_entities.Check;
 import com.example.demo.views.repositories.database_entities.CheckEntry;
 import com.example.demo.views.repositories.database_entities.Store_Product;
+import com.example.demo.views.services.CheckService;
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -14,57 +18,96 @@ public class CheckFormBody extends VerticalLayout {
     private ArrayList<CheckEntry> checkItems;
     private ArrayList<CheckFormLine> checkFormLines;
     private UUID checkNumber;
-    private BigDecimal sum;
-    public CheckFormBody() {
+    private Check check;
+    private CheckService service;
+    public CheckFormBody(CheckService service) {
         setWidth("100%");
         checkFormLines = new ArrayList<>();
+        this.service = service;
+    }
+    public void setCheck(Check check) {
+        if(check != null) {
+            this.check = check;
+            this.checkItems = new ArrayList<>(check.getGoods());
+            this.checkNumber = check.getCheck_number();
+            this.removeAll();
+            checkFormLines = new ArrayList<>();
+
+            for (CheckEntry c : checkItems) {
+                CheckFormLine line = new CheckFormLine(c);
+                checkFormLines.add(line);
+                this.add(line);
+                addListeners(line);
+            }
+        }else{
+            this.check = check;
+            this.checkItems.clear();
+            this.checkFormLines.clear();
+        }
     }
 
-    private void updatePrice(BigDecimal delta) {
-        sum = sum.add(delta);
-    }
 
-    public void addProduct(Store_Product sp){
-        boolean check = false;
-        for(CheckEntry c : checkItems){
+    public void addProduct(Store_Product sp) {
+        boolean alreadyExists = false;
+        for (CheckEntry c : checkItems) {
             if (Objects.equals(c.getProductName(), sp.getProduct())) {
-                check = true;
+                alreadyExists = true;
                 break;
             }
         }
-        if(check)
-            return;
-        CheckEntry newEntry = new CheckEntry(1,
-                                            sp.getSelling_price(),
-                                            sp.getUPC(),
-                                            checkNumber,
-                                            sp.getSelling_price(),
-                                            sp.getProduct());
+        if (alreadyExists) return;
+
+        CheckEntry newEntry = new CheckEntry(
+                1,
+                sp.getSelling_price(),
+                sp.getUPC(),
+                checkNumber,
+                sp.getSelling_price(),
+                sp.getProduct()
+        );
         CheckFormLine newLine = new CheckFormLine(newEntry);
-        this.add(newLine);
         checkFormLines.add(newLine);
         checkItems.add(newEntry);
-        sum = sum.add(newEntry.getSelling_price());
+        this.add(newLine);
+        addListeners(newLine);
+        fireEvent(new CheckFormLine.UpdateCheckSum(newLine, sp.getSelling_price(), 1));
     }
 
-    public void delete(CheckFormLine line){
+    public void delete(CheckFormLine line) {
         checkFormLines.remove(line);
         checkItems.remove(line.getCheckEntry());
+        service.deleteCheckEntryWithReturn(
+                line.getCheckEntry().getCheck_number(), line.getCheckEntry().getStore_product());
         this.remove(line);
-        sum = sum.subtract(line.getCheckEntry().getSelling_price());
     }
 
-    public void setCheck(Check check) {
-        this.checkItems = (ArrayList<CheckEntry>) check.getGoods();
-        this.checkNumber = check.getCheck_number();
-        this.sum = check.getSum_total();
-        checkFormLines = new ArrayList<>();
-        for(CheckEntry c: checkItems){
-            CheckFormLine line = new CheckFormLine(c);
-            checkFormLines.add(line);
-            this.add(line);
-            line.addDeleteListener(e ->delete(e.getSource()));
-            line.addUpdateListener(e ->updatePrice(e.getDelta()));
-        }
+    public void addListeners(CheckFormLine formLine){
+        formLine.addDeleteListener(e -> {
+            delete(e.getSource());
+            BigDecimal price = e.getSource().getCheckEntry().getSelling_price();
+            price = price.multiply(BigDecimal.valueOf(-1));
+            fireEvent(new UpdateTotalPriceEvent(this, price));
+        });
+        formLine.addUpdateListener(e -> {
+           fireEvent(new UpdateTotalPriceEvent(this, e.getDelta()));
+        });
+
     }
+    public void addUpdateListener(ComponentEventListener<UpdateTotalPriceEvent> listener) {
+        addListener(UpdateTotalPriceEvent.class, listener);
+    }
+    public static class UpdateTotalPriceEvent extends ComponentEvent<CheckFormBody> {
+        public BigDecimal getDelta() {
+            return delta;
+        }
+
+        private BigDecimal delta;
+
+        public UpdateTotalPriceEvent(CheckFormBody body, BigDecimal delta) {
+            super(body, true);
+            this.delta = delta;
+        }
+
+    }
+
 }

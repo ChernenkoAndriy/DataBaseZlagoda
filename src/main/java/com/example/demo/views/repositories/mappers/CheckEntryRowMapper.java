@@ -17,7 +17,7 @@ public class CheckEntryRowMapper implements RowMapper<CheckEntry> {
         check.setSelling_price(rs.getBigDecimal("selling_price"));
         check.setStore_product(UUID.fromString(rs.getString("UPC")));
         check.setProductName(rs.getString("product_name"));
-        check.setProduct_selling_price(rs.getBigDecimal("selling_price"));
+        check.setProduct_selling_price(rs.getBigDecimal("psellingprice"));
         return check;
     }
 }

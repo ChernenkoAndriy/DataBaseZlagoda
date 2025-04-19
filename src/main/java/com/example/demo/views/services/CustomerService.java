@@ -2,6 +2,8 @@ package com.example.demo.views.services;
 
 import com.example.demo.views.repositories.CustomerRepository;
 import com.example.demo.views.repositories.database_entities.CustomerCard;
+import com.vaadin.hilla.Nullable;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -22,17 +24,36 @@ public class CustomerService extends AbstractService<CustomerCard, UUID>{
 
     @Override
     public void addEntity(CustomerCard e) {
-        repository.save(e);
+        transactionTemplate.execute(status -> {
+            if (repository.existsPhoneNumber(e.getPhoneNumber())) {
+                throw new ConstraintViolationException("Phone number already exists", null);
+            }
+            repository.save(e);
+            return null;
+        });
     }
+
 
     @Override
     public void updateEntity(CustomerCard e) {
+        transactionTemplate.execute(status -> {
+            if (repository.existsPhoneNumber(e.getPhoneNumber(), e.getId())) {
+                throw new ConstraintViolationException("Phone number already exists", null);
+            }
         repository.update(e);
+        return null;
+        });
     }
 
     @Override
     public void deleteEntity(UUID id) {
+        transactionTemplate.execute(status -> {
+        if (repository.existsChecksLinkedTo(id)) {
+            throw new ConstraintViolationException("Cannot delete customer, since there are checks linked to him", null);
+        }
         repository.delete(id);
+            return null;
+        });
     }
 
     @Override
@@ -44,5 +65,10 @@ public class CustomerService extends AbstractService<CustomerCard, UUID>{
     }
     public CustomerCard getCustomer(String phoneNumber){
         return repository.getCustomer(phoneNumber);
+    }
+
+    @Nullable
+    public List<CustomerCard> getAllBy(String s, String phone, Integer percent) {
+        return repository.getAllBy(s, phone, percent);
     }
 }

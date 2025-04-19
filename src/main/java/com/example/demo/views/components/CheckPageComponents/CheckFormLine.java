@@ -9,6 +9,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -75,18 +76,23 @@ public class CheckFormLine extends HorizontalLayout {
 
     private void configureListeners() {
         deleteButton.addClickListener(e -> fireEvent(new DeleteCheckEntry(this)));
+        amountField.setValueChangeMode(ValueChangeMode.EAGER);
         amountField.addValueChangeListener(event -> {
             Double newAmount = event.getValue();
             if (newAmount != null) {
                 int oldAmount = checkEntry.getAmountOfProducts();
-                BigDecimal oldTotal = unitPrice.multiply(BigDecimal.valueOf(oldAmount));
-                BigDecimal newTotal = unitPrice.multiply(BigDecimal.valueOf(newAmount));
-                totalProductPriceField.setValue(newTotal.setScale(2, RoundingMode.HALF_UP).doubleValue());
-                checkEntry.setAmountOfProducts(newAmount.intValue());
-                checkEntry.setProduct_selling_price(BigDecimal.valueOf(productPriceField.getValue()));
+                int deltaAmount = (int) (newAmount - oldAmount);
+                BigDecimal unitPrice = checkEntry.getProduct_selling_price();
+                BigDecimal delta = unitPrice.multiply(BigDecimal.valueOf(deltaAmount));
+
+                BigDecimal newTotal = checkEntry.getSelling_price().add(delta);
+
                 checkEntry.setSelling_price(newTotal);
-                BigDecimal delta = newTotal.subtract(oldTotal);
-                fireEvent(new UpdateCheckSum(this, delta));
+                checkEntry.setAmountOfProducts(newAmount.intValue());
+
+                totalProductPriceField.setValue(newTotal.setScale(2, RoundingMode.HALF_UP).doubleValue());
+
+                fireEvent(new UpdateCheckSum(this, delta, deltaAmount));
             }
         });
     }
@@ -100,9 +106,16 @@ public class CheckFormLine extends HorizontalLayout {
     }
     public static class UpdateCheckSum extends ComponentEvent<CheckFormLine> {
         private BigDecimal delta;
-        public UpdateCheckSum(CheckFormLine source, BigDecimal delta) {
+
+        public int getDeltaAmount() {
+            return deltaAmount;
+        }
+
+        private int deltaAmount;
+        public UpdateCheckSum(CheckFormLine source, BigDecimal delta, int deltaAmount) {
             super(source, true);
             this.delta = delta;
+            this.deltaAmount=deltaAmount;
         }
         public BigDecimal getDelta() {
             return delta;

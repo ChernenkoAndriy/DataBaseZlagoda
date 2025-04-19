@@ -6,6 +6,14 @@ import java.util.UUID;
 @Entity
 public class CustomerCard implements IEntity<UUID> {
 
+    public UUID getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(UUID cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID cardNumber;
@@ -37,9 +45,6 @@ public class CustomerCard implements IEntity<UUID> {
     public String getCustPatronymic() { return custPatronymic; }
     public void setCustPatronymic(String custPatronymic) { this.custPatronymic = custPatronymic; }
 
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
-
     public String getCity() { return city; }
     public void setCity(String city) { this.city = city; }
 
@@ -51,4 +56,18 @@ public class CustomerCard implements IEntity<UUID> {
 
     public int getPercent() { return percent; }
     public void setPercent(int percent) { this.percent = percent; }
+    public double getDoublePercent() { return percent/100.0; }
+    public void setDoublePercent(double percent) {
+        this.percent = (int) (percent * 100.0);
+    };
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phone_number) {
+        if(phone_number.charAt(0) != '+'){
+            phone_number = "+" + phone_number;
+        }
+        this.phoneNumber = phone_number;
+    }
 }
