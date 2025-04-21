@@ -205,7 +205,7 @@ ALTER TABLE public."Sale" OWNER TO postgres;
 
 --
 -- TOC entry 224 (class 1259 OID 24795)
--- Name: Store_Product; Type: TABLE; Schema: public; Owner: postgres
+-- Name: StoreProduct; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Store_Product" (
@@ -440,7 +440,7 @@ COPY public."Sale" (product_number, selling_price, "UPC", check_number) FROM std
 --
 -- TOC entry 4917 (class 0 OID 24795)
 -- Dependencies: 224
--- Data for Name: Store_Product; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: StoreProduct; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Store_Product" ("UPC", "UPC_prom", id_product, selling_price, products_number, promotional_product) FROM stdin;
@@ -572,7 +572,7 @@ ALTER TABLE ONLY public."Sale"
 
 --
 -- TOC entry 4751 (class 2606 OID 24800)
--- Name: Store_Product Store_Product_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: StoreProduct Store_Product_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Store_Product"
@@ -633,7 +633,7 @@ ALTER TABLE ONLY public."Sale"
 
 --
 -- TOC entry 4760 (class 2606 OID 24801)
--- Name: Store_Product UPC_prom; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: StoreProduct UPC_prom; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Store_Product"
@@ -687,7 +687,7 @@ ALTER TABLE ONLY public."Check"
 
 --
 -- TOC entry 4761 (class 2606 OID 24806)
--- Name: Store_Product id_product; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: StoreProduct id_product; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Store_Product"

@@ -1,6 +1,5 @@
 package com.example.demo.views.components.CheckPageComponents;
 
-import com.example.demo.views.components.EmployeePageComponents.EmployeeForm;
 import com.example.demo.views.events.CloseEvent;
 import com.example.demo.views.events.DeleteEvent;
 import com.example.demo.views.events.SaveEvent;
@@ -28,7 +27,7 @@ public class CheckForm extends Dialog {
     private final Binder<Check> binder = new Binder<>(Check.class);
     private ComboBox<Employee> cashierPhone;
     private ComboBox<CustomerCard> customerPhone;
-    private ComboBox<Store_Product> storeProductChooser;
+    private ComboBox<StoreProduct> storeProductChooser;
     private Check check;
     private Button addProductButton = new Button("Add product");
     private final Button deleteButton = new Button("Delete");
@@ -113,7 +112,7 @@ public class CheckForm extends Dialog {
         closeButton.addClickListener(event -> fireEvent(new CloseCheckEvent(this)));
         checkFormBody.addUpdateListener(e -> updatePrice(e.getDelta()));
         addProductButton.addClickListener(e -> {
-            Store_Product sp = storeProductChooser.getValue();
+            StoreProduct sp = storeProductChooser.getValue();
             checkFormBody.addProduct(sp);
             updatePrice(sp.getSelling_price());
                 }
@@ -146,7 +145,7 @@ public class CheckForm extends Dialog {
         }
     }
 
-    private void configureData(List<CustomerCard> customers, List<Store_Product> storeProducts) {
+    private void configureData(List<CustomerCard> customers, List<StoreProduct> storeProducts) {
         customerPhone.setItems(customers);
         customerPhone.setItemLabelGenerator(c ->
                 c.getPhoneNumber() + " " + c.getCustSurname() + " " + c.getCustName());

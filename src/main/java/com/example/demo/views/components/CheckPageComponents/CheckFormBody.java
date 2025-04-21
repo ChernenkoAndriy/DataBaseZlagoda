@@ -2,12 +2,11 @@ package com.example.demo.views.components.CheckPageComponents;
 
 import com.example.demo.views.repositories.database_entities.Check;
 import com.example.demo.views.repositories.database_entities.CheckEntry;
-import com.example.demo.views.repositories.database_entities.Store_Product;
+import com.example.demo.views.repositories.database_entities.StoreProduct;
 import com.example.demo.views.services.CheckService;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ public class CheckFormBody extends VerticalLayout {
     }
 
 
-    public void addProduct(Store_Product sp) {
+    public void addProduct(StoreProduct sp) {
         boolean alreadyExists = false;
         for (CheckEntry c : checkItems) {
             if (Objects.equals(c.getProductName(), sp.getProduct())) {

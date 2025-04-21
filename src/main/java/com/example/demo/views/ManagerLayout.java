@@ -15,7 +15,7 @@ public class ManagerLayout extends AppLayout {
         sideMenu.addItem(new SideNavItem("Customers", "customers"));
         sideMenu.addItem(new SideNavItem("Warehouse content", "warehouse"));
         sideMenu.addItem(new SideNavItem("Product Categories", "categories"));
-        sideMenu.addItem(new SideNavItem("Product Items", "product_tems"));
+        sideMenu.addItem(new SideNavItem("Product Items", "products"));
         sideMenu.addItem(new SideNavItem("Checks", "checks"));
         configureNavbar();
         configureDrawer();

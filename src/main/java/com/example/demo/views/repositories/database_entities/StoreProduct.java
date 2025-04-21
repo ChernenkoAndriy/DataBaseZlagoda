@@ -6,25 +6,30 @@ import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public class Store_Product implements IEntity<UUID>{
+public class StoreProduct implements IEntity<UUID>{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID UPC;
     private UUID UPC_prom;
     private int id_product;
     private BigDecimal selling_price;
-    private int product_number;
+    private int products_number;
     private boolean promotional_product;
     private String product;
-    public Store_Product(UUID UPC, UUID UPC_prom, int id_product, BigDecimal selling_price, int product_number, boolean promotional_product, String product) {
+    public StoreProduct(UUID UPC, UUID UPC_prom, int id_product, BigDecimal selling_price, int products_number, boolean promotional_product, String product) {
         this.UPC = UPC;
         this.UPC_prom = UPC_prom;
         this.id_product = id_product;
         this.selling_price = selling_price;
-        this.product_number = product_number;
+        this.products_number = products_number;
         this.promotional_product = promotional_product;
         this.product=product;
     }
+
+    public StoreProduct() {
+
+    }
+
     public UUID getUPC_prom() {
         return UPC_prom;
     }
@@ -49,12 +54,12 @@ public class Store_Product implements IEntity<UUID>{
         this.selling_price = selling_price;
     }
 
-    public int getProduct_number() {
-        return product_number;
+    public int getProducts_number() {
+        return products_number;
     }
 
-    public void setProduct_number(int product_number) {
-        this.product_number = product_number;
+    public void setProducts_number(int products_number) {
+        this.products_number = products_number;
     }
 
     public boolean isPromotional_product() {
@@ -81,9 +86,13 @@ public class Store_Product implements IEntity<UUID>{
         this.UPC = id;
     }
     public String getProduct() {
+        if(isPromotional_product())
+                return product + " prom";
         return product;
     }
     public void setProduct(String product) {
+        if(product.endsWith(" prom"))
+            product = product.substring(0, product.length()-6);
         this.product = product;
     }
 
