@@ -19,11 +19,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.annotation.Scope;
 @Route(value = "warehouse", layout = MainLayout.class)
 @SpringComponent
-@PermitAll
+@RolesAllowed("ROLE_MANAGER")
 @Scope("prototype")
 @PageTitle("Warehouse | ZLAGODA")
 public class StoreProductView extends AppLayout {
@@ -99,6 +100,8 @@ public class StoreProductView extends AppLayout {
             }
             updateList();
             closeEditor();
+            makeSaleProductForm.updateList();
+            addProductsForm.updateList();
         }catch (ConstraintViolationException e){
             showErrorNotification(e.getMessage());
         }
@@ -108,6 +111,8 @@ public class StoreProductView extends AppLayout {
             service.deleteEntity(event.getEntity().getId());
             updateList();
             closeEditor();
+            makeSaleProductForm.updateList();
+            addProductsForm.updateList();
         } catch (ConstraintViolationException er) {
             showErrorNotification(er.getMessage());
         }
@@ -119,6 +124,8 @@ public class StoreProductView extends AppLayout {
             productForm.setProduct(e);
             productForm.open();
             addClassName("editing");
+            makeSaleProductForm.updateList();
+            addProductsForm.updateList();
         }
     }
     private void addStoreProduct(){

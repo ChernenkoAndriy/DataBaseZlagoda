@@ -111,12 +111,17 @@ public class StoreProductForm extends Dialog {
 
     public void setProduct(StoreProduct e) {
         if (e == null) {
+            checkBox.setEnabled(false);
+            productChooser.setEnabled(true);
             productChooser.setValue(null);
             checkBox.setValue(false);
             amountField.setValue(0);
             sellingPrice.setValue(BigDecimal.ZERO);
         } else {
             binder.setBean(e);
+            sellingPrice.setEnabled(!e.isPromotional_product());
+            checkBox.setValue(e.isPromotional_product());
+            checkBox.setEnabled(false);
         }
     }
 
@@ -129,7 +134,7 @@ public class StoreProductForm extends Dialog {
 
     private void configureListeners() {
         productChooser.addValueChangeListener(e -> {
-            if(productChooser.getValue() != null) {
+            if(productChooser.getValue() != null && binder.getBean().getUPC()==null) {
                 boolean containsGood = false;
                 boolean containsPromGood = false;
                 BigDecimal price = null;
@@ -148,17 +153,19 @@ public class StoreProductForm extends Dialog {
 
                 if (containsGood) {
                     if (containsPromGood) {
-                        sellingPrice.clear();
+                        sellingPrice.setValue(BigDecimal.ZERO);
                         productChooser.setInvalid(true);
                         productChooser.setErrorMessage("There are already goods for that product. Please select a different one.");
                         checkBox.setEnabled(true);
                     } else {
                         sellingPrice.setValue(price);
+                        sellingPrice.setEnabled(false);
                         checkBox.setValue(true);
                         checkBox.setEnabled(false);
                     }
                 } else {
-                    sellingPrice.clear();
+                    sellingPrice.setEnabled(true);
+                    sellingPrice.setValue(BigDecimal.ZERO);
                     checkBox.setEnabled(false);
                     checkBox.setValue(false);
                 }

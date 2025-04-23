@@ -20,6 +20,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.example.demo.views.repositories.database_entities.Employee;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DuplicateKeyException;
@@ -32,7 +33,7 @@ import java.util.List;
 //layout = ManagerLayout.class потрібна щоб на сторінку автоматично додалась меню та заголовок,
 @SpringComponent
 @Scope("prototype")
-@PermitAll
+@RolesAllowed("ROLE_MANAGER")
 @PageTitle("Employees | ZLAGODA")
 public class EmployeeView extends AppLayout {
     //це компонент табличка, його дивитись окремо

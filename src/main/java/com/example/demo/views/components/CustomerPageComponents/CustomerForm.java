@@ -158,6 +158,10 @@ public class CustomerForm extends Dialog {
         phoneNumber.setErrorMessage("Such phone already exists");
     }
 
+    public void setDeleteButton(boolean b) {
+        deleteButton.setEnabled(b);
+    }
+
     public static class CloseCustomerEvent extends CloseEvent<CustomerForm> {
         public CloseCustomerEvent(CustomerForm customerForm) {
             super(customerForm);

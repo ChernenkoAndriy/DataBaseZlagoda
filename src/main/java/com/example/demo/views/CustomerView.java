@@ -3,8 +3,12 @@ package com.example.demo.views;
 import com.example.demo.views.components.CustomerPageComponents.CustomerForm;
 import com.example.demo.views.components.CustomerPageComponents.CustomerTable;
 import com.example.demo.views.components.CustomerPageComponents.CustomerToolbar;
+import com.example.demo.views.repositories.database_entities.AuthorizationData;
 import com.example.demo.views.repositories.database_entities.CustomerCard;
+import com.example.demo.views.services.AuthorizationService;
 import com.example.demo.views.services.CustomerService;
+import com.example.demo.views.services.MyUserDetails;
+import com.example.demo.views.services.MyUserDetailsService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.button.Button;
@@ -23,6 +27,8 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.annotation.Scope;
 
+import java.util.Objects;
+
 @Route(value = "customers", layout = MainLayout.class)
 @SpringComponent
 @PermitAll
@@ -34,10 +40,17 @@ public class CustomerView extends AppLayout {
     protected CustomerToolbar bar;
     protected CustomerService service;
     protected CustomerForm customerForm;
+    protected MyUserDetails user;
 
     public CustomerView(CustomerService service) {
         this.service = service;
         this.customerForm = new CustomerForm();
+        this.user = MyUserDetailsService.getCurrentUser();
+        if (Objects.equals(user.getRole(), "Manager")) {
+            customerForm.setDeleteButton(true);
+        }else if(Objects.equals(user.getRole(), "Cashier")){
+            customerForm.setDeleteButton(false);
+        }
         this.table = new CustomerTable(service);
         this.bar = new CustomerToolbar();
 

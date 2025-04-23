@@ -35,7 +35,14 @@ public class AddProductsForm extends Dialog {
         amountField.setMax(10000);
         amountField.setStepButtonsVisible(true);
 
-        saveButton.addClickListener(e -> validateAndSave());
+        saveButton.addClickListener(e -> {
+            try {
+                validateAndSave();
+            } catch (IllegalArgumentException ex) {
+            amountField.setInvalid(true);
+            amountField.setErrorMessage("Illegal amount");
+            }
+        });
         cancelButton.addClickListener(e -> close());
 
         HorizontalLayout buttons = new HorizontalLayout(saveButton, cancelButton);
@@ -49,10 +56,10 @@ public class AddProductsForm extends Dialog {
         this.setWidth("400px");
     }
 
-    private void addListener(){
-        selector.addValueChangeListener(e ->{
+    private void addListener() {
+        selector.addValueChangeListener(e -> {
             price.setValue(selector.getValue().getSelling_price());
-                });
+        });
     }
 
     private void validateAndSave() {
@@ -73,7 +80,6 @@ public class AddProductsForm extends Dialog {
             Notification.show("Please enter a valid price greater than 0.");
             return;
         }
-
         selectedProduct.setProducts_number(selectedProduct.getProducts_number() + amount);
         selectedProduct.setSelling_price(price.getValue());
         service.updateEntity(selectedProduct);
@@ -84,9 +90,13 @@ public class AddProductsForm extends Dialog {
     public void addUpdateListener(ComponentEventListener<UpdateStoreProductEvent> listener) {
         addListener(UpdateStoreProductEvent.class, listener);
     }
+
     public static class UpdateStoreProductEvent extends UpdateEvent<AddProductsForm> {
         public UpdateStoreProductEvent(AddProductsForm storeProductToolbar) {
             super(storeProductToolbar);
         }
+    }
+    public void updateList(){
+        selector.setItems(service.getAllEntities());
     }
 }

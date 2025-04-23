@@ -20,11 +20,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.annotation.Scope;
 @Route(value = "products", layout = MainLayout.class)
 @SpringComponent
-@PermitAll
+@RolesAllowed("ROLE_MANAGER")
 @Scope("prototype")
 @PageTitle("Products | ZLAGODA")
 public class ProductView extends AppLayout {

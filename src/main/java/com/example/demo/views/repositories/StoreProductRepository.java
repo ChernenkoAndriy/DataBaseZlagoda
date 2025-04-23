@@ -5,6 +5,7 @@ import com.example.demo.views.repositories.mappers.StoreProductRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -50,8 +51,20 @@ public class StoreProductRepository extends AbstractRepository<StoreProduct, UUI
 
     @Override
     protected String findByIdQuery() {
-        return findAllQuery() + "  WHERE \"UPC\" = ?";
+        return
+                "SELECT " +
+                        "    p.product_name, " +
+                        "    sp.\"UPC\", " +
+                        "    sp.\"UPC_prom\", " +
+                        "    sp.id_product, " +
+                        "    sp.selling_price, " +
+                        "    sp.products_number, " +
+                        "    sp.promotional_product " +
+                        "FROM public.\"Store_Product\" sp " +
+                        "INNER JOIN public.\"Product\" p ON sp.id_product = p.id_product " +
+                        "WHERE sp.\"UPC\" = ?";
     }
+
 
     @Override
     protected String deleteQuery() {
@@ -150,4 +163,20 @@ public class StoreProductRepository extends AbstractRepository<StoreProduct, UUI
         namedJdbcTemplate.getJdbcTemplate().update(sql, i, id);
 
     }
+
+    public void updatePrice(UUID upcProm, BigDecimal price) {
+        String sql = "UPDATE \"Store_Product\"\n" +
+                "SET selling_price = ?\n" +
+                "WHERE \"UPC\" = ?;";
+        namedJdbcTemplate.getJdbcTemplate().update(sql, price, upcProm);
+    }
+
+    public StoreProduct getWithUPC_Prom(UUID upc) {
+        String sql = "SELECT * FROM \"Store_Product\" WHERE \"UPC_prom\" = ? LIMIT 1";
+
+        List<StoreProduct> result = namedJdbcTemplate.getJdbcTemplate().query(sql, new Object[]{upc}, rowMapper);
+
+        return result.isEmpty() ? null : result.get(0);
+    }
+
 }

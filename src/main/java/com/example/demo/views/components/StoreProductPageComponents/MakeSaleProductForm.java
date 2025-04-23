@@ -34,7 +34,12 @@ public class MakeSaleProductForm extends Dialog {
         amountField.setMin(1);
         amountField.setStepButtonsVisible(true);
 
-        saveButton.addClickListener(e -> validateAndSave());
+        saveButton.addClickListener(e -> {try {
+            validateAndSave();
+        } catch (IllegalArgumentException ex){
+            Notification.show(ex.getMessage());
+            amountField.clear();
+        }});
         cancelButton.addClickListener(e -> close());
 
         HorizontalLayout buttons = new HorizontalLayout(saveButton, cancelButton);
@@ -46,10 +51,10 @@ public class MakeSaleProductForm extends Dialog {
 
         this.add(formLayout, buttons);
         this.setWidth("400px");
-        selector.addValueChangeListener(e ->{
-                if(e != null)
-                    amountField.setValue(1);
-                amountField.setMax(selector.getValue().getProducts_number());
+        selector.addValueChangeListener(e -> {
+            if (e != null)
+                amountField.setValue(1);
+            amountField.setMax(selector.getValue().getProducts_number());
         });
     }
 
@@ -68,8 +73,7 @@ public class MakeSaleProductForm extends Dialog {
         }
         UUID id = selectedProduct.getId();
         UUID promid = selectedProduct.getUPC_prom();
-        service.addTo(id, -amount);
-        service.addTo(promid, amount);
+        service.moveProducts(id, promid, amount);
         fireEvent(new UpdateStoreProductEvent(this));
         close();
     }
@@ -77,9 +81,14 @@ public class MakeSaleProductForm extends Dialog {
     public void addUpdateListener(ComponentEventListener<UpdateStoreProductEvent> listener) {
         addListener(UpdateStoreProductEvent.class, listener);
     }
+
     public static class UpdateStoreProductEvent extends UpdateEvent<MakeSaleProductForm> {
         public UpdateStoreProductEvent(MakeSaleProductForm storeProductToolbar) {
             super(storeProductToolbar);
         }
+    }
+
+    public void updateList(){
+        selector.setItems(service.getAllWithSale());
     }
 }

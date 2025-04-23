@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 @Service
@@ -42,16 +43,37 @@ public class StoreProductService extends AbstractService<StoreProduct, UUID>{
 
     @Override
     public void updateEntity(StoreProduct e) {
-        repository.update(e);
+        transactionTemplate.execute(status -> {
+            repository.update(e);
+            if(e.getUPC_prom()!=null){
+                BigDecimal price = e.getSelling_price();
+                price = price.multiply(new BigDecimal(0.8));
+                repository.updatePrice(e.getUPC_prom(), price);
+            }
+            StoreProduct notSale= repository.getWithUPC_Prom(e.getUPC());
+            if(notSale!=null){
+                BigDecimal price = e.getSelling_price();
+                price = price.multiply(new BigDecimal(1.2));
+                repository.updatePrice(notSale.getUPC(), price);
+            }
+            return null;
+        });
     }
 
     @Override
     public void deleteEntity(UUID id) {
-        try {
-            repository.delete(id);
-        }catch (DataIntegrityViolationException e){
-            throw new ConstraintViolationException("Cannot delete these goods, cause there are checks linked to them", null);
-        }
+        transactionTemplate.execute(status -> {
+            try {
+               StoreProduct goods =  repository.findById(id);
+                repository.delete(id);
+                if(goods.getUPC_prom() !=null){
+                    repository.delete(goods.getUPC_prom());
+                }
+            } catch (DataIntegrityViolationException e) {
+                throw new ConstraintViolationException("Cannot delete these goods, cause there are checks linked to them or their sale version ", null);
+            }
+            return null;
+        });
     }
 
     @Override
@@ -72,5 +94,17 @@ public class StoreProductService extends AbstractService<StoreProduct, UUID>{
 
     public void addTo(UUID id, int i) {
         repository.addTo(id, i);
+    }
+
+    public void moveProducts(UUID id, UUID promid, Integer amount) {
+        transactionTemplate.execute(status -> {
+            StoreProduct notProm = repository.findById(id);
+            if(notProm.getProducts_number()<amount){
+                throw new IllegalArgumentException("Too much products to move");
+            }else {
+                addTo(promid, amount);
+                addTo(id, -amount);
+            }
+            return null;});
     }
 }

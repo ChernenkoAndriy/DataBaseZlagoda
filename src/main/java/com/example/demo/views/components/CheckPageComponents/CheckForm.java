@@ -214,6 +214,7 @@ public class CheckForm extends Dialog {
         priceField.setReadOnly(!b);
         vat.setReadOnly(!b);
         checkFormBody.setEnabled(b);
+        deleteButton.setEnabled(!b);
     }
 
     public static class CloseCheckEvent extends CloseEvent<CheckForm> {

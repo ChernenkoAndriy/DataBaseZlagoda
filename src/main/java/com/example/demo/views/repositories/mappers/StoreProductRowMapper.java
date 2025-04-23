@@ -1,6 +1,7 @@
 package com.example.demo.views.repositories.mappers;
 
 import com.example.demo.views.repositories.database_entities.StoreProduct;
+import org.postgresql.util.PSQLException;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -17,8 +18,12 @@ public class StoreProductRowMapper implements RowMapper<StoreProduct> {
         BigDecimal sellingPrice = rs.getBigDecimal("selling_price");
         int productNumber = rs.getInt("products_number");
         boolean promotionalProduct = rs.getBoolean("promotional_product");
-        String productName = rs.getString("product_name");
+        String productName = null;
+        try {
+            productName = rs.getString("product_name");
+        }catch (PSQLException e){
 
+        }
         return new StoreProduct(upc, upcProm, idProduct, sellingPrice, productNumber, promotionalProduct, productName);
     }
 }
