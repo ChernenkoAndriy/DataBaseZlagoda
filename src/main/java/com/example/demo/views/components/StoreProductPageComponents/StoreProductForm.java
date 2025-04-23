@@ -1,5 +1,4 @@
 package com.example.demo.views.components.StoreProductPageComponents;
-
 import com.example.demo.views.events.CloseEvent;
 import com.example.demo.views.events.DeleteEvent;
 import com.example.demo.views.events.SaveEvent;
@@ -25,7 +24,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.regex.Pattern;
-
 public class StoreProductForm extends Dialog {
     protected final Binder<StoreProduct> binder;
     protected Button deleteButton = new Button("Delete");
@@ -161,7 +159,8 @@ public class StoreProductForm extends Dialog {
                     }
                 } else {
                     sellingPrice.clear();
-                    checkBox.setEnabled(true);
+                    checkBox.setEnabled(false);
+                    checkBox.setValue(false);
                 }
             }
         });

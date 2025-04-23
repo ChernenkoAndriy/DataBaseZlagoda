@@ -19,19 +19,21 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.annotation.Scope;
-@Route(value = "products", layout = ManagerLayout.class)
+@Route(value = "products", layout = MainLayout.class)
 @SpringComponent
+@PermitAll
 @Scope("prototype")
 @PageTitle("Products | ZLAGODA")
-public class ManagerProductView extends AppLayout {
+public class ProductView extends AppLayout {
     protected ProductTable table;
     protected ProductToolbar bar;
     protected ProductService service;
     protected ProductForm productForm;
     protected CategoryService categoryService;
-    public ManagerProductView(ProductService productService, CategoryService categoryService) {
+    public ProductView(ProductService productService, CategoryService categoryService) {
         this.categoryService = categoryService;
         this.service = productService;
         this.productForm = new ProductForm(categoryService.getAllEntities());

@@ -19,19 +19,22 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.example.demo.views.repositories.database_entities.Employee;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.annotation.Scope;
+import org.springframework.dao.DuplicateKeyException;
+
 import java.util.List;
 //скопіюйте аннотації так як вони є, вони потрібні для роботи сторінки
-@Route(value = "manager", layout = ManagerLayout.class)
+@Route(value = "manager", layout = MainLayout.class)
 //в аннотації Route value це назва сторінки, яка мусить бути такою як в ManagerLayout
 //там бокова панель яка направляє на сторінку за цим value
 //layout = ManagerLayout.class потрібна щоб на сторінку автоматично додалась меню та заголовок,
 @SpringComponent
 @Scope("prototype")
-//це назва вкладки, його теж поміняйте
+@PermitAll
 @PageTitle("Employees | ZLAGODA")
-public class ManagerEmployeeView extends AppLayout {
+public class EmployeeView extends AppLayout {
     //це компонент табличка, його дивитись окремо
     protected EmployeeTable table;
     //це панель з елементами над таблицею, теж дивитись
@@ -44,7 +47,7 @@ public class ManagerEmployeeView extends AppLayout {
 
     //клас сервісу створиться автоматично програмою, тому клас можна створити з пустим конструктором
     //дивіться сервіс щоб зрозуміти
-    public ManagerEmployeeView(EmployeeService service) {
+    public EmployeeView(EmployeeService service) {
         //метод  отримує список посад
         List<String> roles = service.getAllRoles();
         //ініціалізація
@@ -111,7 +114,9 @@ public class ManagerEmployeeView extends AppLayout {
         try {
             Employee e = event.getEntity();
             if (e.getId() == null) {
-               service.addEntity(e);
+                String password = event.getPassword();
+                String login = event.getLogin();
+               service.addEntity(e, login, password);
             } else {
                service.updateEntity(e);
             }
@@ -119,6 +124,9 @@ public class ManagerEmployeeView extends AppLayout {
             closeEditor();
         }catch (ConstraintViolationException e){
             employeeForm.setInvalidNumber();
+        }catch (DuplicateKeyException e){
+            showErrorNotification(e.getMessage());
+            employeeForm.setInvalidLogin();
         }
     }
     //отримує employee з події delete і видаляє через сервіс

@@ -115,5 +115,8 @@ public class EmployeeRepository extends AbstractRepository<Employee, UUID>{
     }
 
 
-
+    public UUID getIdByPhone(String phoneNumber) {
+    String sql = "SELECT id_employee FROM \"Employee\" WHERE phone_number = ?";
+        return namedJdbcTemplate.getJdbcTemplate().queryForObject(sql, UUID.class, phoneNumber);
+    }
 }

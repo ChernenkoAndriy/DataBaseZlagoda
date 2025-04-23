@@ -37,7 +37,7 @@ public class CheckFormLine extends HorizontalLayout {
         productNameField.setReadOnly(true);
 
         this.amountField = new NumberField("Amount");
-        this.amountField.setValue((double) checkEntry.getAmountOfProducts());
+        this.amountField.setValue((double) checkEntry.getAmountOfProducts()+checkEntry.getDelta());
 
         this.productPriceField = new NumberField("Unit price");
         unitPrice = checkEntry.getProduct_selling_price();
@@ -80,19 +80,22 @@ public class CheckFormLine extends HorizontalLayout {
         amountField.addValueChangeListener(event -> {
             Double newAmount = event.getValue();
             if (newAmount != null) {
-                int oldAmount = checkEntry.getAmountOfProducts();
-                int deltaAmount = (int) (newAmount - oldAmount);
-                BigDecimal unitPrice = checkEntry.getProduct_selling_price();
-                BigDecimal delta = unitPrice.multiply(BigDecimal.valueOf(deltaAmount));
+                int currentAmount = checkEntry.getAmountOfProducts()+checkEntry.getDelta();
+                int newAmountInt = newAmount.intValue();
 
-                BigDecimal newTotal = checkEntry.getSelling_price().add(delta);
+                if (newAmountInt != currentAmount) {
+                    int deltaAmount = newAmountInt - currentAmount;
 
-                checkEntry.setSelling_price(newTotal);
-                checkEntry.setAmountOfProducts(newAmount.intValue());
+                    checkEntry.addProductsAmount(deltaAmount);
 
-                totalProductPriceField.setValue(newTotal.setScale(2, RoundingMode.HALF_UP).doubleValue());
+                    BigDecimal newTotal = checkEntry.getSelling_price().add(checkEntry.getDeltaPrice());
+                    totalProductPriceField.setValue(newTotal.setScale(2, RoundingMode.HALF_UP).doubleValue());
 
-                fireEvent(new UpdateCheckSum(this, delta, deltaAmount));
+                    fireEvent(new UpdateCheckSum(this,
+                            checkEntry.getProduct_selling_price().multiply(BigDecimal.valueOf(deltaAmount)),
+                            deltaAmount
+                    ));
+                }
             }
         });
     }

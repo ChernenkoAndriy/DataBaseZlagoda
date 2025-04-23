@@ -1,7 +1,7 @@
 //package com.example.demo.views.services;
 //
 //import com.example.demo.views.CashierInitialView;
-//import com.example.demo.views.ManagerEmployeeView;
+//import com.example.demo.views.EmployeeView;
 //import com.vaadin.flow.component.UI;
 //import com.vaadin.flow.component.login.LoginForm;
 //import com.vaadin.flow.component.notification.Notification;
@@ -30,7 +30,7 @@
 //            UI.getCurrent().navigate(CashierInitialView.class);
 //            return true;
 //        } else if (userRole == 2) {
-//            UI.getCurrent().navigate(ManagerEmployeeView.class);
+//            UI.getCurrent().navigate(EmployeeView.class);
 //            return true;
 //        } else {
 //            Notification.show("Invalid username or password", 3000, Notification.Position.MIDDLE);

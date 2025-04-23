@@ -11,6 +11,18 @@ public class CheckEntry{
     private String productName;
     private BigDecimal product_selling_price;
 
+    public int getDelta() {
+        return delta;
+    }
+
+    private int delta;
+
+    public BigDecimal getDeltaPrice() {
+        return deltaPrice;
+    }
+
+    private BigDecimal deltaPrice;
+
     public CheckEntry(int amountOfProducts,
                       BigDecimal selling_price,
                       UUID store_product,
@@ -23,10 +35,13 @@ public class CheckEntry{
         this.check_number = check_number;
         this.product_selling_price = product_selling_price;
         this.productName = productName;
+        this.delta = 0;
+        this.deltaPrice = BigDecimal.ZERO;
     }
 
     public CheckEntry() {
-
+        this.delta = 0;
+        this.deltaPrice = BigDecimal.ZERO;
     }
 
     public int getAmountOfProducts() {
@@ -76,5 +91,8 @@ public class CheckEntry{
         this.product_selling_price = product_selling_price;
     }
 
-
+    public void addProductsAmount(int i){
+        this.delta+=i;
+        deltaPrice = deltaPrice.add(product_selling_price.multiply(new BigDecimal(i)));
+    }
 }

@@ -40,8 +40,7 @@ public class CheckForm extends Dialog {
     private StoreProductService storeProductService;
     private CheckService checkService;
 
-    private NumberField priceField = new NumberField("Initial Price");
-    private NumberField finalPriceField = new NumberField("Final Price");
+    private NumberField priceField = new NumberField("Total Price");
     private NumberField vat = new NumberField("Vat");
     private NumberField promPercent = new NumberField("Sale");
     private DateTimePicker timeOfPrinting;
@@ -60,9 +59,9 @@ public class CheckForm extends Dialog {
     }
 
     private void configureBinder() {
-        binder.forField(cashierPhone).bind(Check::getCashier, Check::setCashier);
+        binder.forField(cashierPhone).asRequired("Cashier is required").bind(Check::getCashier, Check::setCashier);
         binder.forField(customerPhone).bind(Check::getCustomer, Check::setCustomer);
-        binder.forField(timeOfPrinting).bind(Check::getPrint_date, Check::setPrint_date);
+        binder.forField(timeOfPrinting).asRequired("Date and time is required").bind(Check::getPrint_date, Check::setPrint_date);
     }
 
     private void configureLayout() {
@@ -86,11 +85,9 @@ public class CheckForm extends Dialog {
         vat.setReadOnly(false);
         promPercent.setLabel("Prom");
         promPercent.setReadOnly(false);
-        finalPriceField.setLabel("Final Price");
-        finalPriceField.setReadOnly(false);
         FormLayout priceLayout = new FormLayout();
         priceLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-        priceLayout.add(priceField, vat, promPercent, finalPriceField);
+        priceLayout.add(priceField, vat, promPercent);
         saveButton.addThemeName("primary");
         deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
         saveButton.setWidth("33%");
@@ -107,7 +104,7 @@ public class CheckForm extends Dialog {
         saveButton.addClickShortcut(Key.ENTER);
         closeButton.addClickShortcut(Key.ESCAPE);
         binder.addStatusChangeListener(e -> saveButton.setEnabled(binder.isValid()));
-        saveButton.addClickListener(event -> fireEvent(new SaveCheckEvent(this, binder.getBean())));
+        saveButton.addClickListener(event -> validateAndSave());
         deleteButton.addClickListener(event  -> fireEvent(new DeleteCheckEvent(this, binder.getBean())));
         closeButton.addClickListener(event -> fireEvent(new CloseCheckEvent(this)));
         checkFormBody.addUpdateListener(e -> updatePrice(e.getDelta()));
@@ -121,12 +118,12 @@ public class CheckForm extends Dialog {
 
 
     public void setCheck(Check check) {
-        if(check == null){
+        if (check == null) {
             customerPhone.clear();
             cashierPhone.clear();
             binder.setBean(null);
-            checkFormBody.setCheck(check);
-        }else {
+            checkFormBody.setCheck(null);
+        } else {
             this.check = check;
             if (check.getGoods().isEmpty()) {
                 customerPhone.setReadOnly(false);
@@ -134,13 +131,19 @@ public class CheckForm extends Dialog {
             }
             binder.setBean(check);
             checkFormBody.setCheck(check);
+            customerPhone.setValue(check.getCustomer());
+            cashierPhone.setValue(check.getCashier());
             updatePrice(BigDecimal.ZERO);
         }
-        }
+    }
+
 
     private void validateAndSave() {
         if (binder.isValid()) {
             Check currentCheck = binder.getBean();
+            currentCheck.setGoods(checkFormBody.getCheckItems());
+            currentCheck.setVat(currentCheck.getSum_total().multiply(BigDecimal.valueOf(0.2)));
+            fireEvent(new SaveCheckEvent(this, currentCheck));
             this.close();
         }
     }
@@ -149,19 +152,12 @@ public class CheckForm extends Dialog {
         customerPhone.setItems(customers);
         customerPhone.setItemLabelGenerator(c ->
                 c.getPhoneNumber() + " " + c.getCustSurname() + " " + c.getCustName());
-
         storeProductChooser.setItems(storeProducts);
-        storeProductChooser.setItemLabelGenerator(sp ->
-                sp.getProduct() + (sp.isPromotional_product() ? " prom" : ""));
-
+        storeProductChooser.setItemLabelGenerator(StoreProduct::getProduct);
         cashierPhone.setItems(new Employee());
         cashierPhone.setReadOnly(true);
         cashierPhone.setItemLabelGenerator(e ->
                 e.getPhone_number() + " " + e.getEmpl_surname() + " " + e.getEmpl_name());
-    }
-
-    private void setCashier(Employee employee) {
-        cashierPhone.setItems(employee);
     }
 
     private void updatePrice(BigDecimal delta) {
@@ -179,7 +175,6 @@ public class CheckForm extends Dialog {
         if (priceField != null) {
             priceField.setValue(sumTotal.doubleValue());
         }
-
         double percent = 0.0;
         if (check.getCustomer() != null) {
             percent = check.getCustomer().getPercent() / 100.0;
@@ -190,18 +185,9 @@ public class CheckForm extends Dialog {
         if(customerPhone.getValue()!=null){
             promPercent.setValue(customerPhone.getValue().getPercent()/100.0);
         }
-
-        BigDecimal vatValue = check.getVat();
-        if (vatValue == null) {
-            vatValue = BigDecimal.valueOf(priceField.getValue()).multiply(BigDecimal.valueOf(0.2));
-        }
+        BigDecimal vatValue = sumTotal.multiply(new BigDecimal("0.2"));
         if (vat != null) {
             vat.setValue(vatValue.doubleValue());
-        }
-
-        double finalPrice = sumTotal.doubleValue() * 1.2 * (1 - percent);
-        if (finalPriceField != null) {
-            finalPriceField.setValue(finalPrice);
         }
     }
 
@@ -215,6 +201,19 @@ public class CheckForm extends Dialog {
 
     public void addCloseListener(ComponentEventListener<CloseCheckEvent> listener) {
         addListener(CloseCheckEvent.class, listener);
+    }
+
+    public void setEditable(boolean b) {
+        saveButton.setEnabled(b);
+        timeOfPrinting.setEnabled(b);
+        cashierPhone.setEnabled(b);
+        customerPhone.setEnabled(b);
+        promPercent.setReadOnly(!b);
+        addProductButton.setEnabled(b);
+        storeProductChooser.setEnabled(b);
+        priceField.setReadOnly(!b);
+        vat.setReadOnly(!b);
+        checkFormBody.setEnabled(b);
     }
 
     public static class CloseCheckEvent extends CloseEvent<CheckForm> {

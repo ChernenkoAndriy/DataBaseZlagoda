@@ -10,11 +10,16 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public class CheckFormBody extends VerticalLayout {
-    private ArrayList<CheckEntry> checkItems;
+    public List<CheckEntry> getCheckItems() {
+        return checkItems;
+    }
+
+    private List<CheckEntry> checkItems;
     private ArrayList<CheckFormLine> checkFormLines;
     private UUID checkNumber;
     private Check check;
@@ -27,7 +32,7 @@ public class CheckFormBody extends VerticalLayout {
     public void setCheck(Check check) {
         if(check != null) {
             this.check = check;
-            this.checkItems = new ArrayList<>(check.getGoods());
+            this.checkItems = check.getGoods();
             this.checkNumber = check.getCheck_number();
             this.removeAll();
             checkFormLines = new ArrayList<>();
@@ -40,12 +45,8 @@ public class CheckFormBody extends VerticalLayout {
             }
         }else{
             this.check = check;
-            this.checkItems.clear();
-            this.checkFormLines.clear();
         }
     }
-
-
     public void addProduct(StoreProduct sp) {
         boolean alreadyExists = false;
         for (CheckEntry c : checkItems) {
@@ -57,13 +58,14 @@ public class CheckFormBody extends VerticalLayout {
         if (alreadyExists) return;
 
         CheckEntry newEntry = new CheckEntry(
-                1,
-                sp.getSelling_price(),
+                0,
+                BigDecimal.ZERO,
                 sp.getUPC(),
                 checkNumber,
                 sp.getSelling_price(),
                 sp.getProduct()
         );
+        newEntry.addProductsAmount(1);
         CheckFormLine newLine = new CheckFormLine(newEntry);
         checkFormLines.add(newLine);
         checkItems.add(newEntry);
@@ -71,18 +73,11 @@ public class CheckFormBody extends VerticalLayout {
         addListeners(newLine);
         fireEvent(new CheckFormLine.UpdateCheckSum(newLine, sp.getSelling_price(), 1));
     }
-
-    public void delete(CheckFormLine line) {
-        checkFormLines.remove(line);
-        checkItems.remove(line.getCheckEntry());
-        service.deleteCheckEntryWithReturn(
-                line.getCheckEntry().getCheck_number(), line.getCheckEntry().getStore_product());
-        this.remove(line);
-    }
-
     public void addListeners(CheckFormLine formLine){
         formLine.addDeleteListener(e -> {
-            delete(e.getSource());
+            checkItems.remove(formLine.getCheckEntry());
+            checkFormLines.remove(formLine);
+            formLine.removeFromParent();
             BigDecimal price = e.getSource().getCheckEntry().getSelling_price();
             price = price.multiply(BigDecimal.valueOf(-1));
             fireEvent(new UpdateTotalPriceEvent(this, price));

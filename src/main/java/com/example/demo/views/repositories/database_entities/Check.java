@@ -16,7 +16,6 @@ public class Check implements IEntity<UUID>{
     private UUID card_number;
     private LocalDateTime print_date;
     private BigDecimal sum_total;
-    private BigDecimal sum_final;
     private BigDecimal vat;
     private Employee cashier;
     private CustomerCard customer;
@@ -36,8 +35,6 @@ public class Check implements IEntity<UUID>{
         this.print_date = print_date;
         this.sum_total = sum_total;
         this.vat = vat;
-        BigDecimal percent = BigDecimal.valueOf(customer.getPercent()).divide(BigDecimal.valueOf(100));
-        sum_final = sum_total.multiply(BigDecimal.ONE.subtract(percent));
 
     }
     @Override
@@ -100,10 +97,6 @@ public class Check implements IEntity<UUID>{
     public Employee getCashier() {
         return cashier;
     }
-
-    public void setCashier(Employee cashier) {
-        this.cashier = cashier;
-    }
     public CustomerCard getCustomer() {
         return customer;
     }
@@ -160,16 +153,25 @@ public class Check implements IEntity<UUID>{
             customer.setPhoneNumber(phone);
         }
     }
-
     public void setCustomer(CustomerCard customer) {
         this.customer = customer;
+        if(customer != null) {
+            setCard_number(customer.getCardNumber());
+            setCustomerPhone(customer.getPhoneNumber());
+            setCustomerName(customer.getCustName());
+            setCustomerSurname(customer.getCustSurname());
+        }
     }
-    public BigDecimal getSum_final() {
-        return sum_final;
+    public void setCashier(Employee cashier) {
+        this.cashier = cashier;
+        if(cashier != null){
+            setCashierName(cashier.getEmpl_name());
+            setCashierPhone(cashier.getPhone_number());
+            setCustomerSurname(cashier.getEmpl_surname());
+            setId_employee(cashier.getId_employee());
+        }
     }
-    public void setSum_final(BigDecimal sum_final) {
-        this.sum_final = sum_final;
-    }
+
     public List<CheckEntry> getGoods() {
         return goods;
     }

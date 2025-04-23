@@ -5,9 +5,7 @@ import com.example.demo.views.components.CheckPageComponents.CheckTable;
 import com.example.demo.views.components.CheckPageComponents.CheckToolbar;
 import com.example.demo.views.components.EmployeePageComponents.EmployeeForm;
 import com.example.demo.views.repositories.database_entities.Check;
-import com.example.demo.views.services.CheckService;
-import com.example.demo.views.services.CustomerService;
-import com.example.demo.views.services.StoreProductService;
+import com.example.demo.views.services.*;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.button.Button;
@@ -23,13 +21,17 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.example.demo.views.repositories.database_entities.Employee;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.annotation.Scope;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
-@Route(value = "checks", layout = ManagerLayout.class)
+@Route(value = "checks", layout = MainLayout.class)
 @SpringComponent
+@PermitAll
 @Scope("prototype")
 @PageTitle("Checks | ZLAGODA")
 public class CheckView extends AppLayout {
@@ -38,14 +40,23 @@ public class CheckView extends AppLayout {
     protected CheckService checkService;
     protected CustomerService customerService;
     protected StoreProductService storeProductService;
+    protected EmployeeService employeeService;
     protected CheckForm checkForm;
-    public CheckView(CheckService checkService, CustomerService customerService, StoreProductService storeProductService) {
+    private MyUserDetails user;
+    public CheckView(CheckService checkService, CustomerService customerService, StoreProductService storeProductService, EmployeeService employeeService) {
         this.checkForm = new CheckForm(customerService, storeProductService, checkService);
         this.checkService = checkService;
         this.customerService=customerService;
         this.storeProductService=storeProductService;
         this.table = new CheckTable(checkService);
         this.bar = new CheckToolbar();
+        this.employeeService = employeeService;
+        this.user = MyUserDetailsService.getCurrentUser();
+        if(Objects.equals(user.getRole(), "Manager")){
+            checkForm.setEditable(false);
+        }else if(Objects.equals(user.getRole(), "Cashier")){
+            checkForm.setEditable(true);
+        }
         configureContent();
     }
     private void configureContent() {
@@ -124,6 +135,7 @@ public class CheckView extends AppLayout {
         table.asSingleSelect().clear();
         Check check = new Check();
         check.setGoods(new ArrayList<>());
+        check.setCashier(employeeService.findById(user.getId()));
         editCheck(check);
     }
 }

@@ -21,31 +21,31 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Pattern;
-//формочка що з'являється на сторінці
-//розширює діалог, що є пустою панеллю наяку можна додати об'єкти
-public class EmployeeForm extends Dialog{
-    //це дуже важливе поле
-    //воно допомагає зв'язати поля Employee та об'єкти формочки
-    //як це робиться дивіться configureBinder()
+
+public class EmployeeForm extends Dialog {
     protected final Binder<Employee> binder;
     protected Button deleteButton = new Button("Delete");
     protected Button closeButton = new Button("Cancel");
     protected final Button saveButton = new Button("Save");
+
     protected TextField nameField = new TextField("Name");
     protected TextField surnameField = new TextField("Surname");
     protected TextField patronymic = new TextField("Patronymic");
     protected ComboBox<String> rolechooser = new ComboBox<>("Role");
     protected BigDecimalField salaryField = new BigDecimalField("Salary");
-    protected DatePicker dateofBirth = new DatePicker("Date of birth");;
+    protected DatePicker dateofBirth = new DatePicker("Date of birth");
     protected DatePicker dateofStart = new DatePicker("Date of start");
     protected TextField phoneField = new TextField("Phone Number");
     protected TextField cityField = new TextField("City");
     protected TextField streetField = new TextField("Street");
     protected TextField zipcode = new TextField("Zip Code");
+    protected TextField loginField = new TextField("Login");
+    protected TextField passwordField = new TextField("Password");
 
     public EmployeeForm(List<String> roles) {
         rolechooser.setItems(roles);
@@ -54,13 +54,11 @@ public class EmployeeForm extends Dialog{
         configureBinder();
         this.setWidth("70%");
     }
+
     protected void configureBinder() {
-        //тобто для кожного поля Employee береться геттер і сеттер, що є обов'язковим
-        //для кожного компоненту форми тут необхідно налаштовувати валідацію
         binder.forField(nameField)
-                .asRequired("Name is required")//робить щоб поле було обов'язковим
-                .withValidator(new StringLengthValidator(
-                        "Name must be between 1 and 50 characters", 1, 50)) // фільтр довжини
+                .asRequired("Name is required")
+                .withValidator(new StringLengthValidator("Name must be between 1 and 50 characters", 1, 50))
                 .bind(Employee::getEmpl_name, Employee::setEmpl_name);
 
         binder.forField(surnameField)
@@ -76,8 +74,8 @@ public class EmployeeForm extends Dialog{
 
         binder.forField(phoneField)
                 .asRequired("Phone number is required")
-                .withValidator(phone -> phone.matches("\\+?\\d{12}"
-                ), "Invalid format. Use +XXXXXXXXXXXX")
+                .withValidator(phone -> phone.matches("\\+?\\d{12}"),
+                        "Invalid format. Use +XXXXXXXXXXXX")
                 .bind(Employee::getPhone_number, Employee::setPhone_number);
 
         binder.forField(rolechooser)
@@ -92,7 +90,7 @@ public class EmployeeForm extends Dialog{
         binder.forField(dateofStart)
                 .asRequired("Start date is required")
                 .withValidator(start -> {
-                    LocalDate dob = binder.getBean().getDate_of_birth();
+                    LocalDate dob = dateofBirth.getValue();
                     return dob != null && start.isAfter(dob.plusYears(18));
                 }, "Employee must be at least 18 years old at the moment of start")
                 .bind(Employee::getDate_of_start, Employee::setDate_of_start);
@@ -116,12 +114,29 @@ public class EmployeeForm extends Dialog{
                 .asRequired("Zip Code is required")
                 .withValidator(zip -> zip.matches("\\d{9}"), "Invalid zip code format")
                 .bind(Employee::getZip_code, Employee::setZip_code);
+
+        if (loginField.isVisible()) {
+            binder.forField(loginField)
+                    .asRequired("Login is required")
+                    .withValidator(new StringLengthValidator("Login must be between 5 and 15 characters", 5, 15))
+                    .withValidator(login -> login.matches("^[a-zA-Z]+$"), "Login must contain only Latin letters")
+                    .bind(e -> null, (e, value) -> {});
+        }
+
+        if (passwordField.isVisible()) {
+            binder.forField(passwordField)
+                    .asRequired("Password is required")
+                    .withValidator(new StringLengthValidator("Password must be between 5 and 15 characters", 5, 15))
+                    .withValidator(password -> password.matches("^[a-zA-Z0-9]+$"), "Password must contain only Latin letters and digits")
+                    .bind(e -> null, (e, value) -> {});
+        }
+
     }
+
     protected void configureUI() {
         rolechooser.setAllowCustomValue(false);
         saveButton.addThemeName("primary");
-        deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
-                ButtonVariant.LUMO_ERROR);
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
         saveButton.addClickShortcut(Key.ENTER);
         closeButton.addClickShortcut(Key.ESCAPE);
 
@@ -132,37 +147,65 @@ public class EmployeeForm extends Dialog{
         FormLayout formLayout = new FormLayout();
         formLayout.add(nameField, surnameField, patronymic, rolechooser,
                 dateofBirth, dateofStart, phoneField, cityField,
-                streetField, zipcode, salaryField, new Span());
+                streetField, zipcode, salaryField, loginField, passwordField, new Span());
 
         HorizontalLayout buttons = new HorizontalLayout(FlexComponent.JustifyContentMode.CENTER);
         buttons.setWidth("100%");
         buttons.add(saveButton, deleteButton, closeButton);
+
         this.add(formLayout);
         this.add(buttons);
-
-        //тут ми назначаємо лістенери
-        //деякі з них використовують fireevent що створює
-        // глобальну подію на яку можна реагувати з іншого класу
-        //в employeeview ми можемо хендлити вже саме ці події
-        //створюються вони нижче
         binder.addStatusChangeListener(e -> saveButton.setEnabled(binder.isValid()));
-        saveButton.addClickListener(event -> validateAndSave()); // <1>
-        deleteButton.addClickListener(event -> fireEvent(new DeleteEmployeeEvent(this, binder.getBean()))); // <2>
-        closeButton.addClickListener(event -> fireEvent(new CloseEmployeeEvent(this))); // <3>
+
+        saveButton.addClickListener(event -> validateAndSave());
+        deleteButton.addClickListener(event -> fireEvent(new DeleteEmployeeEvent(this, binder.getBean())));
+        closeButton.addClickListener(event -> fireEvent(new CloseEmployeeEvent(this)));
     }
-    //передає параметри в біндер
+
     public void setEmployee(Employee e) {
+        if(e != null) {
+            binder.removeBinding(loginField);
+            binder.removeBinding(passwordField);
+
+            if (e.getId_employee() == null) {
+                loginField.setVisible(true);
+                passwordField.setVisible(true);
+
+                binder.forField(loginField)
+                        .asRequired("Login is required")
+                        .withValidator(new StringLengthValidator("Login must be between 5 and 15 characters", 5, 15))
+                        .withValidator(login -> login.matches("^[a-zA-Z]+$"), "Login must contain only Latin letters")
+                        .bind(emp -> null, (emp, value) -> {
+                        });
+
+                binder.forField(passwordField)
+                        .asRequired("Password is required")
+                        .withValidator(new StringLengthValidator("Password must be between 5 and 15 characters", 5, 15))
+                        .withValidator(password -> password.matches("^[a-zA-Z0-9]+$"), "Password must contain only Latin letters and digits")
+                        .bind(emp -> null, (emp, value) -> {
+                        });
+            } else {
+                loginField.setVisible(false);
+                passwordField.setVisible(false);
+            }
+        }
         binder.setBean(e);
     }
-    //біндер сам проходить по полях і перевіряє правильність формату введення даних і логічні помилки
-    //такі речі як наприклад збіг телефонів тут потрібно хендлити ззовні
-    //це робиться у view
+
+
     private void validateAndSave() {
-        if(binder.isValid()) {
-            fireEvent(new SaveEmployeeEvent(this, binder.getBean())); // <6>
+        if (binder.isValid()) {
+            Employee res = binder.getBean();
+            String password =null;
+            String login = null;
+            if(res.getId_employee() == null) {
+                password = passwordField.getValue();
+                login = loginField.getValue();
+            }
+            fireEvent(new SaveEmployeeEvent(this, res, login, password));
         }
     }
-    //валідатор для зарплат
+
     private Validator<BigDecimal> createBigDecimalValidator() {
         Pattern pattern = Pattern.compile("^[0-9]\\d{0,8}(\\.\\d{1,4})?$");
         return (value, context) -> {
@@ -175,36 +218,56 @@ public class EmployeeForm extends Dialog{
             return ValidationResult.ok();
         };
     }
-    //методи які визначають логіку лісенера ззовні класу
+
     public void addDeleteListener(ComponentEventListener<DeleteEmployeeEvent> listener) {
         addListener(DeleteEmployeeEvent.class, listener);
     }
+
     public void addSaveListener(ComponentEventListener<SaveEmployeeEvent> listener) {
         addListener(SaveEmployeeEvent.class, listener);
     }
+
     public void addCloseListener(ComponentEventListener<CloseEmployeeEvent> listener) {
         addListener(CloseEmployeeEvent.class, listener);
     }
-//приклад створення подій
-    //в параметр береться джерело виклику і інколи тип значення що передається
+
+    public void setInvalidLogin() {
+        loginField.setInvalid(true);
+        loginField.setErrorMessage("Such login alredy exists");
+    }
+
     public static class CloseEmployeeEvent extends CloseEvent<EmployeeForm> {
         public CloseEmployeeEvent(EmployeeForm employeeForm) {
             super(employeeForm);
         }
     }
-    public static class SaveEmployeeEvent extends SaveEvent<EmployeeForm, Employee>{
-        public SaveEmployeeEvent(EmployeeForm employeeForm, Employee e) {
+
+    public static class SaveEmployeeEvent extends SaveEvent<EmployeeForm, Employee> {
+        private final String login;
+        private final String password;
+
+        public SaveEmployeeEvent(EmployeeForm employeeForm, Employee e, String login, String password) {
             super(employeeForm, e);
+            this.login = login;
+            this.password = password;
+        }
+
+        public String getLogin() {
+            return login;
+        }
+
+        public String getPassword() {
+            return password;
         }
     }
 
-    public static class DeleteEmployeeEvent extends DeleteEvent<EmployeeForm, Employee>{
-
+    public static class DeleteEmployeeEvent extends DeleteEvent<EmployeeForm, Employee> {
         public DeleteEmployeeEvent(EmployeeForm employeeForm, Employee e) {
             super(employeeForm, e);
         }
     }
-    public void setInvalidNumber(){
+
+    public void setInvalidNumber() {
         phoneField.setInvalid(true);
         phoneField.setErrorMessage("Such phone number is already registered");
     }

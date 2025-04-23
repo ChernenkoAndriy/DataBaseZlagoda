@@ -157,5 +157,37 @@ public class CheckRepository{
     }
 
 
+    public void subtractFromWareHouse(CheckEntry checkEntry) {
+        int delta = checkEntry.getDelta();
+        UUID product = checkEntry.getStore_product();
+
+        String sql = "UPDATE \"Store_Product\" SET products_number = products_number + :delta WHERE \"UPC\" = :upc";
+
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("delta", delta)
+                .addValue("upc", product);
+
+        namedJdbcTemplate.update(sql, params);
+    }
+
+    public UUID getIdBy(Check check) {
+        String sql = """
+        SELECT check_number
+        FROM "Check"
+        WHERE card_number = :card_number
+          AND print_date = :print_date
+          AND sum_total = :sum_total
+          AND id_employee = :id_employee
+        LIMIT 1;
+    """;
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("card_number", check.getCard_number())
+                .addValue("print_date", check.getPrint_date())
+                .addValue("sum_total", check.getSum_total())
+                .addValue("vat", check.getVat())
+                .addValue("id_employee", check.getId_employee());
+
+        return namedJdbcTemplate.queryForObject(sql, params, UUID.class);
+    }
 
 }

@@ -31,12 +31,21 @@ public class CheckService extends AbstractService<Check, UUID> {
 
     @Override
     public void addEntity(Check check) {
-                    checkRepository.save(check);
+        transactionTemplate.execute(status -> {
+            checkRepository.save(check);
+            check.setCheck_number(checkRepository.getIdBy(check));
+            saveCheck(check.getGoods(), check.getCheck_number());
+            return null;
+        });
     }
 
     @Override
     public void updateEntity(Check check) {
+        transactionTemplate.execute(status -> {
         checkRepository.update(check);
+        saveCheck(check.getGoods(), check.getCheck_number());
+        return null;
+        });
     }
 
     @Override
@@ -64,23 +73,21 @@ public class CheckService extends AbstractService<Check, UUID> {
         return checkRepository.findFilteredChecks(employeeSurname, employeePhone, customerSurname, customerPhone, dateFrom, dateTo);
     }
 
-    public int deleteCheckEntryWithReturn(UUID check, UUID storeProduct) {
-        return transactionTemplate.execute(status -> {
-            int returned = checkEntryRepository.returnGoods(check, storeProduct);
-            int deleted = checkEntryRepository.deleteSale(check, storeProduct);
-            return returned + deleted;
-        });
-    }
-
-    public void addCheckEntry(CheckEntry checkEntry) {
-        transactionTemplate.execute(e -> {
-            boolean productAvailable = checkEntryRepository.isProductAvailable(checkEntry.getStore_product(), checkEntry.getAmountOfProducts());
-            if (productAvailable) {
+    public void saveCheck(List<CheckEntry> goods , UUID checkId){
+        for(int i = 0; i<goods.size(); i++){
+            goods.get(i).setCheck_number(checkId);
+        }
+        transactionTemplate.execute(status -> {
+            checkEntryRepository.deleteSales(goods.getFirst().getCheck_number());
+            for (CheckEntry checkEntry : goods) {
+                if (checkEntry.getDelta() != 0) {
+                    checkRepository.subtractFromWareHouse(checkEntry);
+                }
+                checkEntry.setSelling_price(checkEntry.getSelling_price().add(checkEntry.getDeltaPrice()));
+                checkEntry.setAmountOfProducts(checkEntry.getAmountOfProducts() + checkEntry.getDelta());
                 checkEntryRepository.save(checkEntry);
-            } else {
-                throw new IllegalArgumentException("Not enough product available for sale.");
             }
-            return e;
+            return null;
         });
     }
 

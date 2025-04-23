@@ -26,27 +26,34 @@ public class CheckEntryRepository{
         this.rowMapper = new CheckEntryRowMapper();
     }
     public void save(CheckEntry e) {
-        String sql = "INSERT INTO public.\"Sale\"(\n" +
-                "\tproduct_number, selling_price, \"UPC\", check_number)\n" +
-                "\tVALUES (?, ?, ?, ?);";
+        String sql = "INSERT INTO public.\"Sale\"(" +
+                "product_number, selling_price, \"UPC\", check_number) " +
+                "VALUES (:product_number, :selling_price, :UPC, :check_number)";
+
         SqlParameterSource namedParameters = new MapSqlParameterSource()
                 .addValue("product_number", e.getAmountOfProducts())
                 .addValue("selling_price", e.getSelling_price())
-                .addValue("\"UPC\"" , e.getStore_product())
+                .addValue("UPC", e.getStore_product())  // без лапок у ключі
                 .addValue("check_number", e.getCheck_number());
-         namedJdbcTemplate.update(sql, namedParameters);
+
+        namedJdbcTemplate.update(sql, namedParameters);
     }
+
     public int update(CheckEntry e) {
-        String sql = "UPDATE public.\"Sale\"\n" +
-                "\tSET product_number=?, selling_price=? \n" +
-                "\tWHERE \"UPC\" = ? AND check_number = ?;";
+        String sql = "UPDATE public.\"Sale\" " +
+                "SET product_number = :product_number, " +
+                "selling_price = :selling_price " +
+                "WHERE \"UPC\" = :upc AND check_number = :check_number";
+
         SqlParameterSource namedParameters = new MapSqlParameterSource()
                 .addValue("product_number", e.getAmountOfProducts())
                 .addValue("selling_price", e.getSelling_price())
-                .addValue("\"UPC\"" , e.getStore_product())
+                .addValue("upc", e.getStore_product())
                 .addValue("check_number", e.getCheck_number());
+
         return namedJdbcTemplate.update(sql, namedParameters);
     }
+
     public int count() {
         String sql = "SELECT COUNT (*) FROM \"Sale\"";
         return namedJdbcTemplate.getJdbcTemplate().queryForObject(sql, Integer.class);
@@ -75,31 +82,6 @@ public class CheckEntryRepository{
                 "WHERE s.check_number = ?;";
         return namedJdbcTemplate.getJdbcTemplate().query(sql, rowMapper, check);
     }
-    public int returnGoods(UUID check, UUID storeProduct) {
-        String selectSql = """
-        SELECT product_number
-        FROM "Sale"
-        WHERE "UPC" = ? AND check_number = ?
-    """;
-
-        Integer returned = namedJdbcTemplate.getJdbcTemplate().queryForObject(
-                selectSql, Integer.class, storeProduct, check
-        );
-
-        if (returned == null) return 0;
-
-        String updateSql = """
-        UPDATE "Store_Product"
-        SET products_number = products_number + ?
-        WHERE "UPC" = ? 
-    """;
-
-        return namedJdbcTemplate.getJdbcTemplate().update(
-                updateSql, returned, storeProduct
-        );
-    }
-
-
     public int deleteSale(UUID check, UUID storeProduct) {
         String sql = """
         DELETE FROM "Sale"
@@ -125,5 +107,26 @@ public class CheckEntryRepository{
 
         // Перевіряємо, чи є достатньо товару
         return available != null && available >= productNumberToSell;
+    }
+
+    public boolean checkEntryExists(CheckEntry checkEntry) {
+        String sql = "SELECT COUNT(*) FROM \"Sale\" WHERE check_number = ? AND \"UPC\" = ?";
+        Integer result = namedJdbcTemplate.getJdbcTemplate().queryForObject(
+                sql,
+                new Object[]{checkEntry.getCheck_number(), checkEntry.getStore_product()},
+                Integer.class
+        );
+        return result > 0;
+    }
+
+    public void deleteSales(UUID checkNumber) {
+        String sql = """
+        DELETE FROM "Sale"
+        WHERE check_number = ?
+    """;
+
+         namedJdbcTemplate.getJdbcTemplate().update(
+                sql, checkNumber
+        );
     }
 }

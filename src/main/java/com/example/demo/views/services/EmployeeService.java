@@ -5,6 +5,7 @@ import com.example.demo.views.repositories.EmployeeRepository;
 import com.vaadin.hilla.Nullable;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -14,22 +15,17 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-//аннотація service дозволяє додатку автоматично створити цей об'єкт при компіляції і вставити туди де він потрібен
-//використовуйте її для всіх сервісів
-//сам сервіс вам не потрібно писати, це буду робити я
-//просто декларуйте методи в класі що розширює AbstractService
-//перший тип це сутність з якою працюємо а другий це тип Primary key
-//UUID це просто формат рядка, який бд може генерувати саме
-//тому при додаванні сутності нам не потрібно створювати новий ключ самим
 @Service
 public class EmployeeService extends AbstractService<Employee, UUID>{
 
-    public EmployeeRepository employeeRepository;
+    private EmployeeRepository employeeRepository;
+    private AuthorizationService authorizationService;
 
     @Autowired
-    public EmployeeService(PlatformTransactionManager transactionManager, EmployeeRepository employeeRepository) {
+    public EmployeeService(PlatformTransactionManager transactionManager, EmployeeRepository employeeRepository, AuthorizationService authorizationService) {
         super(transactionManager);
         this.employeeRepository=employeeRepository;
+        this.authorizationService = authorizationService;
     }
 
     public List<Employee> getAllEntities() {
@@ -50,6 +46,19 @@ public class EmployeeService extends AbstractService<Employee, UUID>{
                 }
                 employeeRepository.save(employee);
             }
+        });
+    }
+
+    public void addEntity(Employee employee, String login, String password){
+        transactionTemplate.execute(status -> {
+            addEntity(employee);
+            UUID id = employeeRepository.getIdByPhone(employee.getPhone_number());
+            if(!authorizationService.check(login)){
+                authorizationService.addUser(login, password, id);
+            }else{
+                throw new DuplicateKeyException("Such login already exists");
+            }
+            return null;
         });
     }
 
@@ -93,5 +102,8 @@ public class EmployeeService extends AbstractService<Employee, UUID>{
 
     public List<String> getAllRoles(){
         return employeeRepository.getRoles();
+    }
+    public Employee findById(UUID id){
+        return employeeRepository.findById(id);
     }
 }

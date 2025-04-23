@@ -46,9 +46,6 @@ public class CheckTable extends Grid<Check> {
         columnsMap.put("Discount", addColumn(check -> check.getCustomer().getPercent())
                 .setHeader("Discount").setSortable(true));
 
-        columnsMap.put("Sum final", addColumn(Check::getSum_final)
-                .setHeader("Sum final").setSortable(true));
-
         setColumnReorderingAllowed(true);
         getColumns().forEach(col -> col.setAutoWidth(true));
         setMultiSort(true);

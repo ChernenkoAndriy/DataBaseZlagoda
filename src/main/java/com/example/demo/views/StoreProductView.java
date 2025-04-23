@@ -18,13 +18,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.annotation.Scope;
-@Route(value = "warehouse", layout = ManagerLayout.class)
+@Route(value = "warehouse", layout = MainLayout.class)
 @SpringComponent
+@PermitAll
 @Scope("prototype")
 @PageTitle("Warehouse | ZLAGODA")
-public class ManagerStoreProductView extends AppLayout {
+public class StoreProductView extends AppLayout {
     protected StoreProductTable table;
     protected StoreProductToolbar bar;
     protected StoreProductService service;
@@ -33,7 +35,7 @@ public class ManagerStoreProductView extends AppLayout {
     protected StoreProductForm productForm;
     private AddProductsForm addProductsForm;
     private MakeSaleProductForm makeSaleProductForm;
-    public ManagerStoreProductView(StoreProductService storeProductService, ProductService productService, CategoryService categoryService) {
+    public StoreProductView(StoreProductService storeProductService, ProductService productService, CategoryService categoryService) {
         this.service = storeProductService;
         this.productService = productService;
         this.makeSaleProductForm = new MakeSaleProductForm(service);
