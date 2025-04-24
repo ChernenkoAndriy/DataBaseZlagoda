@@ -56,6 +56,9 @@ public class CheckFormLine extends HorizontalLayout {
                     ));
                     totalProductPriceField.setValue(checkEntry.getTotal());
                 }
+                if(newAmount<=0){
+                    amountField.setValue(1);
+                }
             }
         });
     }
