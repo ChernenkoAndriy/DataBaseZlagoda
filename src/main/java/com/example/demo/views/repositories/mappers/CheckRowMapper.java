@@ -19,38 +19,43 @@ public class CheckRowMapper implements RowMapper<Check> {
         Employee employee = new Employee();
         CustomerCard customerCard = new CustomerCard();
 
-        UUID emplId = UUID.fromString(rs.getString("id_employee"));
-        check.setId_employee(emplId);
+        // Employee
+        UUID emplId = UUID.fromString(rs.getString("e_id"));
         employee.setId(emplId);
-        employee.setEmpl_surname(rs.getString("empl_surname"));
-        employee.setEmpl_name(rs.getString("empl_name"));
-        employee.setEmpl_patronymic(rs.getString("empl_patronymic"));
-        employee.setEmpl_role(rs.getString("empl_role"));
-        employee.setSalary(rs.getBigDecimal("salary"));
-        employee.setDate_of_birth(rs.getObject("date_of_birth", LocalDate.class));
-        employee.setDate_of_start(rs.getObject("date_of_start", LocalDate.class));
-        employee.setPhone_number(rs.getString("phone_number"));
-        employee.setCity(rs.getString("city"));
-        employee.setStreet(rs.getString("street"));
-        employee.setZip_code(rs.getString("zip_code"));
-        check.setCashier(employee);
+        employee.setEmpl_surname(rs.getString("e_surname"));
+        employee.setEmpl_name(rs.getString("e_name"));
+        employee.setEmpl_patronymic(rs.getString("e_patronymic"));
+        employee.setEmpl_role(rs.getString("e_role"));
+        employee.setSalary(rs.getBigDecimal("e_salary"));
+        employee.setDate_of_birth(rs.getObject("e_birth", LocalDate.class));
+        employee.setDate_of_start(rs.getObject("e_start", LocalDate.class));
+        employee.setPhone_number(rs.getString("e_phone"));
+        employee.setCity(rs.getString("e_city"));
+        employee.setStreet(rs.getString("e_street"));
+        employee.setZip_code(rs.getString("e_zip"));
 
-        UUID cardNumber = rs.getObject("card_number", UUID.class);
+        // CustomerCard
+        UUID cardNumber = rs.getObject("c_card_number", UUID.class);
         customerCard.setId(cardNumber);
+        customerCard.setCustSurname(rs.getString("c_surname"));
+        customerCard.setCustName(rs.getString("c_name"));
+        customerCard.setCustPatronymic(rs.getString("c_patronymic"));
+        customerCard.setPhoneNumber(rs.getString("c_phone"));
+        customerCard.setCity(rs.getString("c_city"));
+        customerCard.setStreet(rs.getString("c_street"));
+        customerCard.setZipCode(rs.getString("c_zip"));
+        customerCard.setPercent(rs.getInt("c_percent"));
+
+        // Check
+        check.setCheck_number(UUID.fromString(rs.getString("ch_check_number")));
+        check.setPrint_date(rs.getObject("ch_print_date", LocalDateTime.class));
+        check.setSum_total(rs.getBigDecimal("ch_sum_total"));
+        check.setVat(rs.getBigDecimal("ch_vat"));
+        check.setId_employee(emplId);
         check.setCard_number(cardNumber);
-        customerCard.setCustSurname(rs.getString("cust_surname"));
-        customerCard.setCustName(rs.getString("cust_name"));
-        customerCard.setCustPatronymic(rs.getString("cust_patronymic"));
-        customerCard.setPhoneNumber(rs.getString("phone_number"));
-        customerCard.setCity(rs.getString("city"));
-        customerCard.setStreet(rs.getString("street"));
-        customerCard.setZipCode(rs.getString("zip_code"));
-        customerCard.setPercent(rs.getInt("percent"));
+        check.setCashier(employee);
         check.setCustomer(customerCard);
 
-        check.setCheck_number(UUID.fromString(rs.getString("check_number")));
-        check.setPrint_date(rs.getTimestamp("print_date").toLocalDateTime());
-        check.setVat(rs.getBigDecimal("vat"));
         return check;
     }
 }

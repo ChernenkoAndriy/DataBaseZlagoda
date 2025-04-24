@@ -43,7 +43,7 @@ public class CategoryView extends AppLayout {
     }
     private void configureContent() {
         bar.setWidth("100%");
-        table.setMinWidth("130%");
+        table.setMinWidth("100%");
         table.asSingleSelect().addValueChangeListener(event ->
                 editCategory(event.getValue()));
         VerticalLayout tableContainer = new VerticalLayout(table);

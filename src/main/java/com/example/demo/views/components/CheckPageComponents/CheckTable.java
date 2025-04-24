@@ -9,6 +9,7 @@ import com.vaadin.flow.component.grid.contextmenu.GridSubMenu;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -31,15 +32,17 @@ public class CheckTable extends Grid<Check> {
         columnsMap.put("Cashier phone", addColumn(check -> check.getCashier().getPhone_number())
                 .setHeader("Cashier phone").setSortable(true));
 
-         columnsMap.put("Customer surname", addColumn(check -> check.getCustomer().getCustSurname()).setHeader("Customer surname").setSortable(true));
-         columnsMap.put("Customer name", addColumn(check -> check.getCustomer().getCustName()).setHeader("Customer name").setSortable(true));
-         columnsMap.put("Customer phone", addColumn(check -> check.getCustomer().getPhoneNumber()).setHeader("Customer phone").setSortable(true));
+         columnsMap.put("Customer surname", addColumn(Check::getCustomerSurname).setHeader("Customer surname").setSortable(true));
+         columnsMap.put("Customer name", addColumn(Check::getCustomerName).setHeader("Customer name").setSortable(true));
+         columnsMap.put("Customer phone", addColumn(Check::getCustomerPhone).setHeader("Customer phone").setSortable(true));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm", new Locale("uk"));
         columnsMap.put("Time printed", addColumn(check ->
                 check.getPrint_date() != null ? check.getPrint_date().format(formatter) : ""
         ).setHeader("Time printed").setSortable(true));
 
+        columnsMap.put("Sum total", addColumn(Check::getSum_total)
+                .setHeader("Sum total").setSortable(true));
         columnsMap.put("Vat", addColumn(Check::getVat)
                 .setHeader("Vat").setSortable(true));
 

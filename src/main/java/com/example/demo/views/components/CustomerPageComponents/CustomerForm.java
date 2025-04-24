@@ -94,24 +94,31 @@ public class CustomerForm extends Dialog {
 
         // Percent: optional, 0–100
         binder.forField(percent)
+                .asRequired("Percent is required")
                 .withValidator(p -> p == null || (p >= 0 && p <= 100),
                         "Percent must be between 0 and 100")
                 .bind(CustomerCard::getDoublePercent, CustomerCard::setDoublePercent);
 
         // City: optional, 2–50 chars
         binder.forField(cityField)
+                .withNullRepresentation("")
                 .withValidator(city -> city == null || (city.length() >= 2 && city.length() <= 50),
                         "City must be between 2 and 50 characters")
+                .withValidator(city -> city == null || city.matches("^[a-zA-Z\\s'-]+$"),
+                        "City must contain only English letters")
                 .bind(CustomerCard::getCity, CustomerCard::setCity);
+
 
         // Street: optional, 2–100 chars
         binder.forField(streetField)
+                .withNullRepresentation("")
                 .withValidator(street -> street == null || (street.length() >= 2 && street.length() <= 100),
                         "Street must be between 2 and 100 characters")
                 .bind(CustomerCard::getStreet, CustomerCard::setStreet);
 
         // Zipcode: optional, must match 9 digits
         binder.forField(zipcode)
+                .withNullRepresentation("")
                 .withValidator(zip -> zip == null || zip.matches("\\d{9}"),
                         "Invalid zip code format. Must be 9 digits.")
                 .bind(CustomerCard::getZipCode, CustomerCard::setZipCode);

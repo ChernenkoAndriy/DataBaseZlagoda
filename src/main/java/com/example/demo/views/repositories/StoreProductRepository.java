@@ -179,4 +179,34 @@ public class StoreProductRepository extends AbstractRepository<StoreProduct, UUI
         return result.isEmpty() ? null : result.get(0);
     }
 
+    public List<StoreProduct> getAllEntitiesWithPromNull() {
+        String sql = "SELECT \n" +
+                "    p.product_name, \n" +
+                "    sp.\"UPC\", \n" +
+                "    sp.\"UPC_prom\", \n" +
+                "    sp.id_product, \n" +
+                "    sp.selling_price, \n" +
+                "    sp.products_number, \n" +
+                "    sp.promotional_product\n" +
+                "FROM public.\"Store_Product\" sp\n" +
+                "INNER JOIN public.\"Product\" p ON sp.id_product = p.id_product\n" +
+                "WHERE sp.\"UPC_prom\" IS NULL;";
+        return namedJdbcTemplate.getJdbcTemplate().query(sql, rowMapper);
+    }
+
+
+    public List<StoreProduct> getAllWithoutSale() {
+        String sql = "SELECT \n" +
+                "    p.product_name, \n" +
+                "    sp.\"UPC\", \n" +
+                "    sp.\"UPC_prom\", \n" +
+                "    sp.id_product, \n" +
+                "    sp.selling_price, \n" +
+                "    sp.products_number, \n" +
+                "    sp.promotional_product\n" +
+                "FROM public.\"Store_Product\" sp\n" +
+                "INNER JOIN public.\"Product\" p ON sp.id_product = p.id_product\n" +
+                "WHERE sp.promotional_product=FALSE;";
+        return namedJdbcTemplate.getJdbcTemplate().query(sql, rowMapper);
+    }
 }

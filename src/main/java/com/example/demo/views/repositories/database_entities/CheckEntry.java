@@ -9,39 +9,30 @@ public class CheckEntry{
     private UUID store_product;
     private UUID check_number;
     private String productName;
-    private BigDecimal product_selling_price;
 
-    public int getDelta() {
-        return delta;
+    public BigDecimal getTotal() {
+        return total;
     }
 
-    private int delta;
-
-    public BigDecimal getDeltaPrice() {
-        return deltaPrice;
+    public void setTotal(BigDecimal total) {
+        this.total = total;
     }
 
-    private BigDecimal deltaPrice;
-
+    private BigDecimal total;
     public CheckEntry(int amountOfProducts,
                       BigDecimal selling_price,
                       UUID store_product,
                       UUID check_number,
-                      BigDecimal product_selling_price,
                       String productName) {
         this.amountOfProducts = amountOfProducts;
         this.selling_price = selling_price;
         this.store_product = store_product;
         this.check_number = check_number;
-        this.product_selling_price = product_selling_price;
         this.productName = productName;
-        this.delta = 0;
-        this.deltaPrice = BigDecimal.ZERO;
+        this.total = selling_price.multiply(new BigDecimal(amountOfProducts));
     }
 
     public CheckEntry() {
-        this.delta = 0;
-        this.deltaPrice = BigDecimal.ZERO;
     }
 
     public int getAmountOfProducts() {
@@ -50,6 +41,7 @@ public class CheckEntry{
 
     public void setAmountOfProducts(int amountOfProducts) {
         this.amountOfProducts = amountOfProducts;
+        this.total = new BigDecimal(amountOfProducts).multiply(selling_price);
     }
 
     public BigDecimal getSelling_price() {
@@ -83,16 +75,4 @@ public class CheckEntry{
         this.productName = productName;
     }
 
-    public BigDecimal getProduct_selling_price() {
-        return product_selling_price;
-    }
-
-    public void setProduct_selling_price(BigDecimal product_selling_price) {
-        this.product_selling_price = product_selling_price;
-    }
-
-    public void addProductsAmount(int i){
-        this.delta+=i;
-        deltaPrice = deltaPrice.add(product_selling_price.multiply(new BigDecimal(i)));
-    }
 }

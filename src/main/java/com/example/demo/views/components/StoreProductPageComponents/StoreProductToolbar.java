@@ -60,7 +60,7 @@ public class StoreProductToolbar extends HorizontalLayout{
         add(rightLayout);
     }
     protected void configureComponents() {
-        filterField.setPlaceholder("Find goods by product name or UPC");
+        filterField.setPlaceholder("Find goods");
         filterField.setValueChangeMode(ValueChangeMode.LAZY);
         filterField.setWidth("70%");
         filterField.addValueChangeListener(e ->

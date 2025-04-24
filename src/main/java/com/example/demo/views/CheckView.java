@@ -54,6 +54,7 @@ public class CheckView extends AppLayout {
         this.user = MyUserDetailsService.getCurrentUser();
         if(Objects.equals(user.getRole(), "Manager")){
             checkForm.setEditable(false);
+            bar.setAddButton(false);
         }else if(Objects.equals(user.getRole(), "Cashier")){
             checkForm.setEditable(true);
         }
@@ -61,7 +62,7 @@ public class CheckView extends AppLayout {
     }
     private void configureContent() {
         bar.setWidth("100%");
-        table.setMinWidth("130%");
+        table.setMinWidth("120%");
         table.asSingleSelect().addValueChangeListener(event ->
                 editCheck(event.getValue()));
         VerticalLayout tableContainer = new VerticalLayout(table);
@@ -110,6 +111,9 @@ public class CheckView extends AppLayout {
             closeEditor();
         }catch (ConstraintViolationException e){
 
+        }catch (IllegalArgumentException e){
+            showErrorNotification(e.getMessage());
+            return;
         }
     }
     private void deleteCheck(CheckForm.DeleteCheckEvent event) {

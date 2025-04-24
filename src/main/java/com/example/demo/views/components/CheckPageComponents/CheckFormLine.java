@@ -7,50 +7,90 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.BigDecimalField;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 
 public class CheckFormLine extends HorizontalLayout {
-
-    public CheckEntry getCheckEntry() {
-        return checkEntry;
-    }
-
     private CheckEntry checkEntry;
-    private TextField productNameField;
-    private NumberField productPriceField;
-    private NumberField totalProductPriceField;
-    private NumberField amountField;
+    private TextField productNameField = new TextField("");
+    private BigDecimalField productPriceField= new BigDecimalField("Unit price");
+    private BigDecimalField totalProductPriceField = new BigDecimalField("Total");
+    private IntegerField amountField = new IntegerField("Amount");
     private BigDecimal unitPrice;
     private Button deleteButton;
 
     public CheckFormLine(CheckEntry checkEntry) {
         this.checkEntry = checkEntry;
-
-        this.productNameField = new TextField("");
         productNameField.setValue(String.valueOf(checkEntry.getProductName()));
         productNameField.setReadOnly(true);
-
-        this.amountField = new NumberField("Amount");
-        this.amountField.setValue((double) checkEntry.getAmountOfProducts()+checkEntry.getDelta());
-
-        this.productPriceField = new NumberField("Unit price");
-        unitPrice = checkEntry.getProduct_selling_price();
-        this.productPriceField.setValue(unitPrice.setScale(2, RoundingMode.HALF_UP).doubleValue());
+        this.amountField.setValue(checkEntry.getAmountOfProducts());
+        unitPrice = checkEntry.getSelling_price();
+        this.productPriceField.setValue(unitPrice.setScale(2, RoundingMode.HALF_UP));
         productPriceField.setReadOnly(true);
-
-        this.totalProductPriceField = new NumberField("Total");
         BigDecimal total = unitPrice.multiply(BigDecimal.valueOf(checkEntry.getAmountOfProducts()));
-        this.totalProductPriceField.setValue(total.setScale(2, RoundingMode.HALF_UP).doubleValue());
+        this.totalProductPriceField.setValue(total.setScale(2, RoundingMode.HALF_UP));
         totalProductPriceField.setReadOnly(true);
-
         configureUI();
         configureListeners();
+    }
+    private void configureListeners() {
+        deleteButton.addClickListener(e -> fireEvent(new DeleteCheckEntry(this)));
+        amountField.setValueChangeMode(ValueChangeMode.EAGER);
+        amountField.addValueChangeListener(event -> {
+            Integer newAmount = event.getValue();
+            if (newAmount != null) {
+                int currentAmount = checkEntry.getAmountOfProducts();
+                int newAmountInt = newAmount;
+                if (newAmountInt != currentAmount) {
+                    int deltaAmount = newAmountInt - currentAmount;
+                    checkEntry.setAmountOfProducts(newAmount);
+                    fireEvent(new UpdateCheckSum(this,
+                            checkEntry.getSelling_price().multiply(BigDecimal.valueOf(deltaAmount)),
+                            deltaAmount
+                    ));
+                    totalProductPriceField.setValue(checkEntry.getTotal());
+                }
+            }
+        });
+    }
+
+    public void addUpdateListener(ComponentEventListener<UpdateCheckSum> listener) {
+        addListener(UpdateCheckSum.class, listener);
+    }
+
+    public void addDeleteListener(ComponentEventListener<DeleteCheckEntry> listener) {
+        addListener(DeleteCheckEntry.class, listener);
+    }
+
+    public static class UpdateCheckSum extends ComponentEvent<CheckFormLine> {
+        private final BigDecimal delta;
+        private final int deltaAmount;
+
+        public UpdateCheckSum(CheckFormLine source, BigDecimal delta, int deltaAmount) {
+            super(source, true);
+            this.delta = delta;
+            this.deltaAmount = deltaAmount;
+        }
+
+        public BigDecimal getDelta() {
+            return delta;
+        }
+
+        public int getDeltaAmount() {
+            return deltaAmount;
+        }
+    }
+
+    public static class DeleteCheckEntry extends ComponentEvent<CheckFormLine> {
+        public DeleteCheckEntry(CheckFormLine checkFormLine) {
+            super(checkFormLine, true);
+        }
     }
 
     private void configureUI() {
@@ -74,61 +114,11 @@ public class CheckFormLine extends HorizontalLayout {
         this.add(productNameField, amountField, productPriceField, totalProductPriceField, deleteButton);
     }
 
-    private void configureListeners() {
-        deleteButton.addClickListener(e -> fireEvent(new DeleteCheckEntry(this)));
-        amountField.setValueChangeMode(ValueChangeMode.EAGER);
-        amountField.addValueChangeListener(event -> {
-            Double newAmount = event.getValue();
-            if (newAmount != null) {
-                int currentAmount = checkEntry.getAmountOfProducts()+checkEntry.getDelta();
-                int newAmountInt = newAmount.intValue();
-
-                if (newAmountInt != currentAmount) {
-                    int deltaAmount = newAmountInt - currentAmount;
-
-                    checkEntry.addProductsAmount(deltaAmount);
-
-                    BigDecimal newTotal = checkEntry.getSelling_price().add(checkEntry.getDeltaPrice());
-                    totalProductPriceField.setValue(newTotal.setScale(2, RoundingMode.HALF_UP).doubleValue());
-
-                    fireEvent(new UpdateCheckSum(this,
-                            checkEntry.getProduct_selling_price().multiply(BigDecimal.valueOf(deltaAmount)),
-                            deltaAmount
-                    ));
-                }
-            }
-        });
+    public CheckEntry getCheckEntry() {
+        return checkEntry;
+    }
+    public void setAmountFieldReadOnly(boolean b){
+        amountField.setReadOnly(b);
     }
 
-    public void addUpdateListener(ComponentEventListener<UpdateCheckSum> listener) {
-        addListener(UpdateCheckSum.class, listener);
-    }
-
-    public void addDeleteListener(ComponentEventListener<DeleteCheckEntry> listener) {
-        addListener(DeleteCheckEntry.class, listener);
-    }
-    public static class UpdateCheckSum extends ComponentEvent<CheckFormLine> {
-        private BigDecimal delta;
-
-        public int getDeltaAmount() {
-            return deltaAmount;
-        }
-
-        private int deltaAmount;
-        public UpdateCheckSum(CheckFormLine source, BigDecimal delta, int deltaAmount) {
-            super(source, true);
-            this.delta = delta;
-            this.deltaAmount=deltaAmount;
-        }
-        public BigDecimal getDelta() {
-            return delta;
-        }
-    }
-
-    public static class DeleteCheckEntry extends ComponentEvent<CheckFormLine> {
-
-        public DeleteCheckEntry(CheckFormLine checkFormLine) {
-            super(checkFormLine, true);
-        }
-    }
 }

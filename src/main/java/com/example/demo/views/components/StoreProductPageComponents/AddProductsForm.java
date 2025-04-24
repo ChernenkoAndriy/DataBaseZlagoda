@@ -24,7 +24,7 @@ public class AddProductsForm extends Dialog {
 
     public AddProductsForm(StoreProductService service) {
         this.service = service;
-        selector.setItems(service.getAllEntities());
+        updateList();
         selector.setItemLabelGenerator(StoreProduct::getProduct);
         configureUI();
         addListener();
@@ -97,6 +97,6 @@ public class AddProductsForm extends Dialog {
         }
     }
     public void updateList(){
-        selector.setItems(service.getAllEntities());
+        selector.setItems(service.getAllWithoutSale());
     }
 }

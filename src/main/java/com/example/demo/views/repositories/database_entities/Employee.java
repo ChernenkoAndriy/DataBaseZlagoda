@@ -112,8 +112,10 @@ private String zip_code;
     }
 
     public void setPhone_number(String phone_number) {
-        if(phone_number.charAt(0) != '+'){
-            phone_number = "+" + phone_number;
+        if(phone_number !=null) {
+            if (phone_number.charAt(0) != '+') {
+                phone_number = "+" + phone_number;
+            }
         }
         this.phone_number = phone_number;
     }

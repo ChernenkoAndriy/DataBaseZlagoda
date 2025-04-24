@@ -37,8 +37,6 @@ public class EmployeeTable extends Grid<Employee> {
         getColumns().forEach(col -> col.setAutoWidth(true));
         setMultiSort(true);
     }
-    //створюється контекстне меню що дозволяє ховати колонки і навпаки
-    //це робиться через хешмап (ім'я колнки -> об'єкт колонки)
     private void configureColumnVisibilityContextMenu() {
         GridContextMenu<Employee> contextMenu = new GridContextMenu<>(this);
         GridMenuItem<Employee> toggleColumn = contextMenu.addItem("Set column visibility");

@@ -100,24 +100,6 @@ public class Check implements IEntity<UUID>{
     public CustomerCard getCustomer() {
         return customer;
     }
-    public String getCashierSurname(){
-        return cashier.getEmpl_surname();
-    }
-    public String getCashierName(){
-        return cashier.getEmpl_name();
-    }
-    public String getCashierPhone(){
-        return cashier.getPhone_number();
-    }
-    public String getCustomerSurname(){
-        return customer.getCustSurname();
-    }
-    public String getCustomerName(){
-        return customer.getCustSurname();
-    }
-    public String getCustomerPhone(){
-        return customer.getCustSurname();
-    }
     public void setCashierSurname(String surname) {
         if (cashier != null) {
             cashier.setEmpl_surname(surname);
@@ -177,5 +159,27 @@ public class Check implements IEntity<UUID>{
     }
     public void setGoods(List<CheckEntry> goods) {
         this.goods = goods;
+    }
+
+    public String getCustomerPhone(){
+        if(customer == null){
+            return null;
+        }else {
+            return customer.getPhoneNumber();
+        }
+    }
+    public String getCustomerName(){
+        if(customer == null){
+            return null;
+        }else {
+            return customer.getCustName();
+        }
+    }
+    public String getCustomerSurname(){
+        if(customer == null){
+            return null;
+        }else {
+            return customer.getCustSurname();
+        }
     }
 }

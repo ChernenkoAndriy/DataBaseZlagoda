@@ -17,10 +17,12 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.data.binder.Binder;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class CheckForm extends Dialog {
@@ -40,8 +42,8 @@ public class CheckForm extends Dialog {
     private StoreProductService storeProductService;
     private CheckService checkService;
 
-    private NumberField priceField = new NumberField("Total Price");
-    private NumberField vat = new NumberField("Vat");
+    private BigDecimalField priceField = new BigDecimalField("Total Price");
+    private BigDecimalField vat = new BigDecimalField("Vat");
     private NumberField promPercent = new NumberField("Sale");
     private DateTimePicker timeOfPrinting;
 
@@ -52,144 +54,100 @@ public class CheckForm extends Dialog {
         this.checkFormBody = new CheckFormBody(checkService);
         configureLayout();
         configureBinder();
+        configureData(customerService.getAllEntities(), storeProductService.getAllEntitiesWithPromNull());
         configureLogic();
-        this.setWidth("70%");
-        configureData(customerService.getAllEntities(), storeProductService.getAllEntities());
 
     }
 
     private void configureBinder() {
         binder.forField(cashierPhone).asRequired("Cashier is required").bind(Check::getCashier, Check::setCashier);
-        binder.forField(customerPhone).bind(Check::getCustomer, Check::setCustomer);
-        binder.forField(timeOfPrinting).asRequired("Date and time is required").bind(Check::getPrint_date, Check::setPrint_date);
-    }
-
-    private void configureLayout() {
-        cashierPhone = new ComboBox<>("Cashier Phone");
-        cashierPhone.setWidth("50%");
-        customerPhone = new ComboBox<>("Customer Phone");
-        customerPhone.setWidth("50%");
-        customerPhone.setReadOnly(false);
-        storeProductChooser = new ComboBox<>();
-        addProductButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        timeOfPrinting = new DateTimePicker("Enter date and time of printing");
-        FormLayout formLayout = new FormLayout();
-        formLayout.setWidthFull();
-        formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 2));
-        formLayout.add(cashierPhone, customerPhone);
-        HorizontalLayout searchLayout = new HorizontalLayout(storeProductChooser, addProductButton, timeOfPrinting);
-        searchLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
-        priceField.setLabel("Total Price");
-        priceField.setReadOnly(false);
-        vat.setLabel("Vat");
-        vat.setReadOnly(false);
-        promPercent.setLabel("Prom");
-        promPercent.setReadOnly(false);
-        FormLayout priceLayout = new FormLayout();
-        priceLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-        priceLayout.add(priceField, vat, promPercent);
-        saveButton.addThemeName("primary");
-        deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
-        saveButton.setWidth("33%");
-        deleteButton.setWidth("33%");
-        closeButton.setWidth("33%");
-        HorizontalLayout buttons = new HorizontalLayout(saveButton, deleteButton, closeButton);
-        buttons.setWidth("100%");
-        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        priceLayout.setWidth("25%");
-        this.add(formLayout, searchLayout, checkFormBody, priceLayout, buttons);
+        binder.forField(customerPhone).withNullRepresentation(new CustomerCard()).bind(Check::getCustomer, Check::setCustomer);
+        binder.forField(timeOfPrinting)
+                .asRequired("Date and time is required")
+                .bind(Check::getPrint_date, Check::setPrint_date);
+        binder.forField(vat).bind(Check::getVat, Check::setVat);
+        binder.forField(priceField).bind(Check::getSum_total, Check::setSum_total);
     }
 
     private void configureLogic() {
         saveButton.addClickShortcut(Key.ENTER);
         closeButton.addClickShortcut(Key.ESCAPE);
-        binder.addStatusChangeListener(e -> saveButton.setEnabled(binder.isValid()));
+        binder.addStatusChangeListener(e -> {
+            if(checkFormBody.getCheckItems() != null) {
+                saveButton.setEnabled(binder.isValid() && !checkFormBody.getCheckItems().isEmpty());
+            }else{
+                saveButton.setEnabled(false);
+            }
+        });
         saveButton.addClickListener(event -> validateAndSave());
-        deleteButton.addClickListener(event  -> fireEvent(new DeleteCheckEvent(this, binder.getBean())));
+        deleteButton.addClickListener(event -> fireEvent(new DeleteCheckEvent(this, binder.getBean())));
         closeButton.addClickListener(event -> fireEvent(new CloseCheckEvent(this)));
+
         checkFormBody.addUpdateListener(e -> updatePrice(e.getDelta()));
         addProductButton.addClickListener(e -> {
-            StoreProduct sp = storeProductChooser.getValue();
-            checkFormBody.addProduct(sp);
-            updatePrice(sp.getSelling_price());
+                    StoreProduct sp = storeProductChooser.getValue();
+                    if(checkFormBody.addProduct(sp)){
+                fireEvent(new CheckFormBody.UpdateTotalPriceEvent(checkFormBody, sp.getSelling_price()));
+                        updatePrice(sp.getSelling_price());
+            }
                 }
         );
-    }
 
+        customerPhone.addValueChangeListener(e -> {
+            if (customerPhone.getValue() != null) {
+                promPercent.setValue(customerPhone.getValue().getPercent() / 100.0);
+            } else {
+                promPercent.setValue(0.0);
+            }
+        });
+
+    }
 
     public void setCheck(Check check) {
-        if (check == null) {
-            customerPhone.clear();
-            cashierPhone.clear();
-            binder.setBean(null);
-            checkFormBody.setCheck(null);
-        } else {
-            this.check = check;
-            if (check.getGoods().isEmpty()) {
+        if (check != null) {
+            if (check.getCheck_number()!=null) {
+                customerPhone.setReadOnly(true);
+                cashierPhone.setReadOnly(true);
+                binder.setBean(check);
+            } else {
                 customerPhone.setReadOnly(false);
-                customerPhone.addValueChangeListener(e -> updatePrice(BigDecimal.ZERO));
+                binder.setBean(check);
+                timeOfPrinting.setValue(LocalDateTime.now());
             }
-            binder.setBean(check);
-            checkFormBody.setCheck(check);
-            customerPhone.setValue(check.getCustomer());
-            cashierPhone.setValue(check.getCashier());
-            updatePrice(BigDecimal.ZERO);
         }
+        checkFormBody.setCheck(check);
     }
-
 
     private void validateAndSave() {
         if (binder.isValid()) {
             Check currentCheck = binder.getBean();
             currentCheck.setGoods(checkFormBody.getCheckItems());
-            currentCheck.setVat(currentCheck.getSum_total().multiply(BigDecimal.valueOf(0.2)));
             fireEvent(new SaveCheckEvent(this, currentCheck));
-            this.close();
         }
     }
 
     private void configureData(List<CustomerCard> customers, List<StoreProduct> storeProducts) {
         customerPhone.setItems(customers);
-        customerPhone.setItemLabelGenerator(c ->
-                c.getPhoneNumber() + " " + c.getCustSurname() + " " + c.getCustName());
         storeProductChooser.setItems(storeProducts);
         storeProductChooser.setItemLabelGenerator(StoreProduct::getProduct);
         cashierPhone.setItems(new Employee());
         cashierPhone.setReadOnly(true);
-        cashierPhone.setItemLabelGenerator(e ->
-                e.getPhone_number() + " " + e.getEmpl_surname() + " " + e.getEmpl_name());
+        customerPhone.setItemLabelGenerator(c -> {
+            if (c == null) return "";
+            return (c.getPhoneNumber() != null ? c.getPhoneNumber() : "") + " " +
+                    (c.getCustSurname() != null ? c.getCustSurname() : "") + " " +
+                    (c.getCustName() != null ? c.getCustName() : "");
+        });
+
+        cashierPhone.setItemLabelGenerator(e -> {
+            if (e == null) return "";
+            return (e.getPhone_number() != null ? e.getPhone_number() : "") + " " +
+                    (e.getEmpl_surname() != null ? e.getEmpl_surname() : "") + " " +
+                    (e.getEmpl_name() != null ? e.getEmpl_name() : "");
+        });
+
     }
 
-    private void updatePrice(BigDecimal delta) {
-        if (delta == null || check == null) {
-            return;
-        }
-
-        BigDecimal sumTotal = check.getSum_total();
-        if (sumTotal == null) {
-            sumTotal = BigDecimal.ZERO;
-        }
-        sumTotal = sumTotal.add(delta);
-        check.setSum_total(sumTotal);
-
-        if (priceField != null) {
-            priceField.setValue(sumTotal.doubleValue());
-        }
-        double percent = 0.0;
-        if (check.getCustomer() != null) {
-            percent = check.getCustomer().getPercent() / 100.0;
-        }
-        if (promPercent != null) {
-            promPercent.setValue(percent);
-        }
-        if(customerPhone.getValue()!=null){
-            promPercent.setValue(customerPhone.getValue().getPercent()/100.0);
-        }
-        BigDecimal vatValue = sumTotal.multiply(new BigDecimal("0.2"));
-        if (vat != null) {
-            vat.setValue(vatValue.doubleValue());
-        }
-    }
 
     public void addSaveListener(ComponentEventListener<SaveCheckEvent> listener) {
         addListener(SaveCheckEvent.class, listener);
@@ -208,11 +166,11 @@ public class CheckForm extends Dialog {
         timeOfPrinting.setEnabled(b);
         cashierPhone.setEnabled(b);
         customerPhone.setEnabled(b);
-        promPercent.setReadOnly(!b);
+        promPercent.setReadOnly(true);
         addProductButton.setEnabled(b);
         storeProductChooser.setEnabled(b);
-        priceField.setReadOnly(!b);
-        vat.setReadOnly(!b);
+        priceField.setReadOnly(true);
+        vat.setReadOnly(true);
         checkFormBody.setEnabled(b);
         deleteButton.setEnabled(!b);
     }
@@ -222,15 +180,59 @@ public class CheckForm extends Dialog {
             super(checkForm);
         }
     }
+
     public static class SaveCheckEvent extends SaveEvent<CheckForm, Check> {
         public SaveCheckEvent(CheckForm checkForm, Check check) {
             super(checkForm, check);
         }
     }
 
-    public static class DeleteCheckEvent extends DeleteEvent<CheckForm, Check>{
+    public static class DeleteCheckEvent extends DeleteEvent<CheckForm, Check> {
         public DeleteCheckEvent(CheckForm checkForm, Check check) {
             super(checkForm, check);
         }
+    }
+
+    private void updatePrice(BigDecimal delta) {
+        if (priceField.getValue() == null) {
+            priceField.setValue(new BigDecimal(0));
+        }
+        priceField.setValue(priceField.getValue().add(delta));
+        vat.setValue(priceField.getValue().multiply(new BigDecimal("0.2")));
+    }
+
+    private void configureLayout() {
+        this.setWidth("70%");
+        cashierPhone = new ComboBox<>("Cashier Phone");
+        cashierPhone.setWidth("50%");
+        customerPhone = new ComboBox<>("Customer Phone");
+        customerPhone.setWidth("50%");
+        storeProductChooser = new ComboBox<>();
+        addProductButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        timeOfPrinting = new DateTimePicker("Enter date and time of printing");
+        timeOfPrinting.setMax(LocalDateTime.now().plusMinutes(4));
+        timeOfPrinting.setMin(LocalDateTime.now().minusYears(100));
+        FormLayout formLayout = new FormLayout();
+        formLayout.setWidthFull();
+        formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 2));
+        formLayout.add(cashierPhone, customerPhone);
+        HorizontalLayout searchLayout = new HorizontalLayout(storeProductChooser, addProductButton, timeOfPrinting);
+        searchLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
+        priceField.setLabel("Total Price");
+        vat.setLabel("Vat");
+        promPercent.setLabel("Prom");
+        FormLayout priceLayout = new FormLayout();
+        priceLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+        priceLayout.add(priceField, vat, promPercent);
+        saveButton.addThemeName("primary");
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+        saveButton.setWidth("33%");
+        deleteButton.setWidth("33%");
+        closeButton.setWidth("33%");
+        HorizontalLayout buttons = new HorizontalLayout(saveButton, deleteButton, closeButton);
+        buttons.setWidth("100%");
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        priceLayout.setWidth("25%");
+        this.add(formLayout, searchLayout, checkFormBody, priceLayout, buttons);
     }
 }

@@ -55,10 +55,14 @@ public class StoreProductForm extends Dialog {
         binder.forField(sellingPrice)
                 .asRequired("Selling price is required")
                 .withValidator(createBigDecimalValidator())
+                .withValidator(price -> price == null || price.compareTo(BigDecimal.ZERO) >= 0,
+                        "Selling price must be positive or zero")
                 .bind(StoreProduct::getSelling_price, StoreProduct::setSelling_price);
 
         binder.forField(amountField)
                 .asRequired("Amount is required")
+                .withValidator(amount -> amount != null && amount >= 0,
+                        "Amount must be 0 or more")
                 .bind(StoreProduct::getProducts_number, StoreProduct::setProducts_number);
 
         binder.forField(productChooser)
@@ -78,6 +82,7 @@ public class StoreProductForm extends Dialog {
                             }
                         }
                 );
+
     }
 
     protected void configureUI() {
@@ -119,6 +124,7 @@ public class StoreProductForm extends Dialog {
             sellingPrice.setValue(BigDecimal.ZERO);
         } else {
             binder.setBean(e);
+            productChooser.setEnabled(e.getUPC() == null);
             sellingPrice.setEnabled(!e.isPromotional_product());
             checkBox.setValue(e.isPromotional_product());
             checkBox.setEnabled(false);
@@ -156,18 +162,21 @@ public class StoreProductForm extends Dialog {
                         sellingPrice.setValue(BigDecimal.ZERO);
                         productChooser.setInvalid(true);
                         productChooser.setErrorMessage("There are already goods for that product. Please select a different one.");
+                        saveButton.setEnabled(false);
                         checkBox.setEnabled(true);
                     } else {
                         sellingPrice.setValue(price);
                         sellingPrice.setEnabled(false);
                         checkBox.setValue(true);
                         checkBox.setEnabled(false);
+                        saveButton.setEnabled(true);
                     }
                 } else {
                     sellingPrice.setEnabled(true);
                     sellingPrice.setValue(BigDecimal.ZERO);
                     checkBox.setEnabled(false);
                     checkBox.setValue(false);
+                    saveButton.setEnabled(true);
                 }
             }
         });

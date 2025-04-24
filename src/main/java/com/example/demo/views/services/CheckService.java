@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,9 +34,24 @@ public class CheckService extends AbstractService<Check, UUID> {
     @Override
     public void addEntity(Check check) {
         transactionTemplate.execute(status -> {
-            checkRepository.save(check);
-            check.setCheck_number(checkRepository.getIdBy(check));
-            saveCheck(check.getGoods(), check.getCheck_number());
+            List<CheckEntry> checkEntries = check.getGoods();
+            if (!checkEntries.isEmpty()) {
+                for (CheckEntry c : checkEntries) {
+                    int maxCount = checkEntryRepository.getMaxCount(c);
+                    if (maxCount < c.getAmountOfProducts()) {
+                        throw new IllegalArgumentException("There are only " + maxCount + " items in warehouse for product: " + c.getProductName());
+                    }
+                }
+
+                UUID checkNumber = checkRepository.saveAndReturnCheckNumber(check);
+                check.setCheck_number(checkNumber);
+
+                for (CheckEntry c : checkEntries) {
+                    c.setCheck_number(checkNumber);
+                    checkEntryRepository.save(c);
+                }
+            }
+
             return null;
         });
     }
@@ -42,9 +59,56 @@ public class CheckService extends AbstractService<Check, UUID> {
     @Override
     public void updateEntity(Check check) {
         transactionTemplate.execute(status -> {
-        checkRepository.update(check);
-        saveCheck(check.getGoods(), check.getCheck_number());
-        return null;
+            List<CheckEntry> checkEntries = check.getGoods();
+            if (!checkEntries.isEmpty()) {
+                for (CheckEntry c : checkEntries) {
+                    int maxCount = checkEntryRepository.getMaxCount(c);
+                    if (maxCount < c.getAmountOfProducts()) {
+                        throw new IllegalArgumentException("There are only " + maxCount + " items in warehouse for product: " + c.getProductName());
+                    }
+                }
+            }
+
+            checkRepository.update(check);
+
+            saveCheck(check.getGoods(), check.getCheck_number());
+
+            return null;
+        });
+    }
+
+    public void saveCheck(List<CheckEntry> goods, UUID checkId) {
+        transactionTemplate.execute(status -> {
+            // 1. Перевірка ВСІХ товарів перед додаванням
+            for (CheckEntry c : goods) {
+                int maxCount = checkEntryRepository.getMaxCount(c);
+                if (maxCount < c.getAmountOfProducts()) {
+                    throw new IllegalArgumentException("There are only " + maxCount + " items in warehouse for product: " + c.getProductName());
+                }
+            }
+
+            // 2. Видалити старі записи
+            List<CheckEntry> oldGoods = checkEntryRepository.findById(checkId);
+            for (CheckEntry c : oldGoods) {
+                deleteSalesWithReturn(c);
+            }
+
+            // 3. Додати нові рядки чека
+            for (CheckEntry c : goods) {
+                c.setCheck_number(checkId); // важливо: призначити check_number!
+                checkEntryRepository.save(c);
+            }
+
+            return null;
+        });
+    }
+
+    public void deleteSalesWithReturn(CheckEntry c){
+        int delta = c.getAmountOfProducts();
+        transactionTemplate.execute(status -> {
+            checkEntryRepository.delete(c);
+            checkEntryRepository.returnGoods(delta, c.getStore_product());
+                       return null;
         });
     }
 
@@ -61,35 +125,14 @@ public class CheckService extends AbstractService<Check, UUID> {
     public void setGoodsForCheck(Check e) {
         checkRepository.setGoodsFor(e);
     }
-
     public List<Check> findFilteredChecks(
             String employeeSurname,
             String employeePhone,
             String customerSurname,
             String customerPhone,
-            LocalDate dateFrom,
-            LocalDate dateTo
+            LocalDateTime dateFrom,
+            LocalDateTime dateTo
     ) {
         return checkRepository.findFilteredChecks(employeeSurname, employeePhone, customerSurname, customerPhone, dateFrom, dateTo);
     }
-
-    public void saveCheck(List<CheckEntry> goods , UUID checkId){
-        for(int i = 0; i<goods.size(); i++){
-            goods.get(i).setCheck_number(checkId);
-        }
-        transactionTemplate.execute(status -> {
-            checkEntryRepository.deleteSales(goods.getFirst().getCheck_number());
-            for (CheckEntry checkEntry : goods) {
-                if (checkEntry.getDelta() != 0) {
-                    checkRepository.subtractFromWareHouse(checkEntry);
-                }
-                checkEntry.setSelling_price(checkEntry.getSelling_price().add(checkEntry.getDeltaPrice()));
-                checkEntry.setAmountOfProducts(checkEntry.getAmountOfProducts() + checkEntry.getDelta());
-                checkEntryRepository.save(checkEntry);
-            }
-            return null;
-        });
-    }
-
-
 }

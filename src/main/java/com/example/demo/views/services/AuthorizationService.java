@@ -1,10 +1,12 @@
 package com.example.demo.views.services;
 
 import com.example.demo.views.repositories.database_entities.AuthorizationData;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -18,12 +20,15 @@ public class AuthorizationService {
 
     public AuthorizationData getUserByLogin(String login) {
         String sql = "SELECT login, \"password\", \"Employee\".empl_role, \"Employee\".phone_number, " +
-                "\"Employee\".empl_name, \"Employee\".empl_surname , \"Employee\".id_employee "+
+                "\"Employee\".empl_name, \"Employee\".empl_surname, \"Employee\".id_employee " +
                 "FROM public.\"Authorization_Data\" " +
                 "INNER JOIN \"Employee\" ON \"Employee\".id_employee = \"Authorization_Data\".id_employee " +
                 "WHERE login = :login";
+
         Map<String, Object> params = new HashMap<>();
         params.put("login", login);
+
+        try {
             return namedParameterJdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> {
                 AuthorizationData data = new AuthorizationData();
                 data.setLogin(rs.getString("login"));
@@ -35,6 +40,9 @@ public class AuthorizationService {
                 data.setSurname(rs.getString("empl_surname"));
                 return data;
             });
+        } catch (EmptyResultDataAccessException e) {
+            return new AuthorizationData();
+        }
     }
 
     public boolean check(String login) {

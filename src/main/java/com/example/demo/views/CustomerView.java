@@ -59,7 +59,7 @@ public class CustomerView extends AppLayout {
 
     private void configureContent() {
         bar.setWidth("100%");
-        table.setMinWidth("130%");
+        table.setMinWidth("100%");
         table.asSingleSelect().addValueChangeListener(event ->
                 editCustomer(event.getValue()));
 

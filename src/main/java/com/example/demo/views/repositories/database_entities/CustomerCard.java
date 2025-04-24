@@ -65,8 +65,10 @@ public class CustomerCard implements IEntity<UUID> {
     }
 
     public void setPhoneNumber(String phone_number) {
-        if(phone_number.charAt(0) != '+'){
-            phone_number = "+" + phone_number;
+        if(phone_number != null) {
+            if (phone_number.charAt(0) != '+') {
+                phone_number = "+" + phone_number;
+            }
         }
         this.phoneNumber = phone_number;
     }

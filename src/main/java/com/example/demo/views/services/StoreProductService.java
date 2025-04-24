@@ -107,4 +107,12 @@ public class StoreProductService extends AbstractService<StoreProduct, UUID>{
             }
             return null;});
     }
+
+    public List<StoreProduct> getAllEntitiesWithPromNull() {
+        return repository.getAllEntitiesWithPromNull();
+    }
+
+    public List<StoreProduct> getAllWithoutSale() {
+        return repository.getAllWithoutSale();
+    }
 }

@@ -43,15 +43,22 @@ public class ProductForm extends Dialog{
     protected void configureBinder() {
         binder.forField(productNameField)
                 .asRequired("Product name is required")
+                .withValidator(name -> name.matches("^[A-Za-z ]+$"),
+                        "Product name must contain only Latin letters and spaces")
+                .withValidator(name -> name.length() <= 50,
+                        "Product name must be at most 50 characters")
                 .bind(Product::getProduct_name, Product::setProduct_name);
 
         binder.forField(description)
+                .withValidator(desc -> desc == null || desc.length() <= 100,
+                        "Description must be at most 100 characters")
                 .bind(Product::getCharacteristics, Product::setCharacteristics);
 
         binder.forField(categoryChooser)
                 .asRequired("Category is required")
                 .bind(Product::getCategory, Product::setCategory);
     }
+
 
     protected void configureUI() {
         categoryChooser.setAllowCustomValue(false);

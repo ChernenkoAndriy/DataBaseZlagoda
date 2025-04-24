@@ -13,7 +13,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 @Repository
 public class CheckEntryRepository{
@@ -29,13 +31,11 @@ public class CheckEntryRepository{
         String sql = "INSERT INTO public.\"Sale\"(" +
                 "product_number, selling_price, \"UPC\", check_number) " +
                 "VALUES (:product_number, :selling_price, :UPC, :check_number)";
-
         SqlParameterSource namedParameters = new MapSqlParameterSource()
                 .addValue("product_number", e.getAmountOfProducts())
                 .addValue("selling_price", e.getSelling_price())
                 .addValue("UPC", e.getStore_product())  // без лапок у ключі
                 .addValue("check_number", e.getCheck_number());
-
         namedJdbcTemplate.update(sql, namedParameters);
     }
 
@@ -82,51 +82,32 @@ public class CheckEntryRepository{
                 "WHERE s.check_number = ?;";
         return namedJdbcTemplate.getJdbcTemplate().query(sql, rowMapper, check);
     }
-    public int deleteSale(UUID check, UUID storeProduct) {
-        String sql = """
-        DELETE FROM "Sale"
-        WHERE "UPC" = ? AND check_number = ?
-    """;
+    public Integer getMaxCount(CheckEntry checkEntry) {
+        UUID product = checkEntry.getStore_product();
+        String sql = "SELECT products_number FROM \"Store_Product\" WHERE \"UPC\" = :product";
 
-        return namedJdbcTemplate.getJdbcTemplate().update(
-                sql, storeProduct, check
-        );
+        Map<String, Object> params = new HashMap<>();
+        params.put("product", product);
+
+        return namedJdbcTemplate.queryForObject(sql, params, Integer.class);
     }
-    public boolean isProductAvailable(UUID upc, int productNumberToSell) {
-        String selectSql = """
-        SELECT products_number 
-        FROM "Store_Product" 
-        WHERE "UPC" = :upc
-    """;
-
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("upc", upc);
-
-
-        Integer available = namedJdbcTemplate.queryForObject(selectSql, params, Integer.class);
-
-        // Перевіряємо, чи є достатньо товару
-        return available != null && available >= productNumberToSell;
+    public void delete(CheckEntry c) {
+        UUID upc = c.getStore_product();
+        UUID checkNumber = c.getCheck_number();
+        String sql = "DELETE FROM \"Sale\" WHERE check_number = :checkNumber AND \"UPC\" = :upc";
+        Map<String, Object> params = new HashMap<>();
+        params.put("checkNumber", checkNumber);
+        params.put("upc", upc);
+        namedJdbcTemplate.update(sql, params);
     }
+    public void returnGoods(int delta, UUID storeProduct) {
+        String sql = "UPDATE \"Store_Product\" SET products_number = products_number + :delta WHERE \"UPC\" = :storeProduct";
 
-    public boolean checkEntryExists(CheckEntry checkEntry) {
-        String sql = "SELECT COUNT(*) FROM \"Sale\" WHERE check_number = ? AND \"UPC\" = ?";
-        Integer result = namedJdbcTemplate.getJdbcTemplate().queryForObject(
-                sql,
-                new Object[]{checkEntry.getCheck_number(), checkEntry.getStore_product()},
-                Integer.class
-        );
-        return result > 0;
+        Map<String, Object> params = new HashMap<>();
+        params.put("delta", delta);
+        params.put("storeProduct", storeProduct);
+
+        namedJdbcTemplate.update(sql, params);
     }
 
-    public void deleteSales(UUID checkNumber) {
-        String sql = """
-        DELETE FROM "Sale"
-        WHERE check_number = ?
-    """;
-
-         namedJdbcTemplate.getJdbcTemplate().update(
-                sql, checkNumber
-        );
-    }
 }

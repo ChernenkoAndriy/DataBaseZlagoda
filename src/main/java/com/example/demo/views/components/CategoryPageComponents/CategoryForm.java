@@ -33,7 +33,10 @@ public class CategoryForm extends Dialog{
                 .asRequired("Name is required")
                 .withValidator(new StringLengthValidator(
                         "Name must be between 1 and 50 characters", 1, 50))
+                .withValidator(name -> name.matches("^[A-Za-z]+$"),
+                        "Name must contain only Latin letters")
                 .bind(Category::getCategory_name, Category::setCategory_name);
+
     }
     protected void configureUI() {
         saveButton.addThemeName("primary");

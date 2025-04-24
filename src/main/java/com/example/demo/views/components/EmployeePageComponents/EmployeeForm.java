@@ -32,7 +32,6 @@ public class EmployeeForm extends Dialog {
     protected Button deleteButton = new Button("Delete");
     protected Button closeButton = new Button("Cancel");
     protected final Button saveButton = new Button("Save");
-
     protected TextField nameField = new TextField("Name");
     protected TextField surnameField = new TextField("Surname");
     protected TextField patronymic = new TextField("Patronymic");
@@ -82,6 +81,12 @@ public class EmployeeForm extends Dialog {
                 .asRequired("Role is required")
                 .bind(Employee::getEmpl_role, Employee::setEmpl_role);
 
+        dateofBirth.setMax(LocalDate.now());
+        dateofBirth.setMin(LocalDate.now().minusYears(100));
+        dateofStart.setMax(LocalDate.now());
+        dateofStart.setMin(LocalDate.now().minusYears(100));
+
+
         binder.forField(dateofBirth)
                 .asRequired("Date of birth is required")
                 .withValidator(dob -> dob.isBefore(LocalDate.now().minusYears(18)), "Employee must be at least 18 years old")
@@ -102,17 +107,19 @@ public class EmployeeForm extends Dialog {
 
         binder.forField(cityField)
                 .asRequired("City is required")
-                .withValidator(new StringLengthValidator("City must be between 2 and 50 characters", 2, 50))
+                .withValidator(city -> city == null || city.matches("^[a-zA-Z\\s'-]+$"),
+                        "City must contain only English letters")
+                .withValidator(new StringLengthValidator("City must be between 1 and 50 characters", 1, 50))
                 .bind(Employee::getCity, Employee::setCity);
 
         binder.forField(streetField)
                 .asRequired("Street is required")
-                .withValidator(new StringLengthValidator("Street must be between 2 and 100 characters", 2, 100))
+                .withValidator(new StringLengthValidator("Street must be between 1 and 100 characters", 1, 100))
                 .bind(Employee::getStreet, Employee::setStreet);
 
         binder.forField(zipcode)
                 .asRequired("Zip Code is required")
-                .withValidator(zip -> zip.matches("\\d{9}"), "Invalid zip code format")
+                .withValidator(zip -> zip.matches("\\d{9}"), "Invalid zip code format, enter 9 digits")
                 .bind(Employee::getZip_code, Employee::setZip_code);
 
         if (loginField.isVisible()) {
@@ -132,7 +139,6 @@ public class EmployeeForm extends Dialog {
         }
 
     }
-
     protected void configureUI() {
         rolechooser.setAllowCustomValue(false);
         saveButton.addThemeName("primary");
@@ -161,7 +167,6 @@ public class EmployeeForm extends Dialog {
         deleteButton.addClickListener(event -> fireEvent(new DeleteEmployeeEvent(this, binder.getBean())));
         closeButton.addClickListener(event -> fireEvent(new CloseEmployeeEvent(this)));
     }
-
     public void setEmployee(Employee e) {
         if(e != null) {
             binder.removeBinding(loginField);
@@ -191,8 +196,6 @@ public class EmployeeForm extends Dialog {
         }
         binder.setBean(e);
     }
-
-
     private void validateAndSave() {
         if (binder.isValid()) {
             Employee res = binder.getBean();
@@ -205,7 +208,6 @@ public class EmployeeForm extends Dialog {
             fireEvent(new SaveEmployeeEvent(this, res, login, password));
         }
     }
-
     private Validator<BigDecimal> createBigDecimalValidator() {
         Pattern pattern = Pattern.compile("^[0-9]\\d{0,8}(\\.\\d{1,4})?$");
         return (value, context) -> {
@@ -218,19 +220,15 @@ public class EmployeeForm extends Dialog {
             return ValidationResult.ok();
         };
     }
-
     public void addDeleteListener(ComponentEventListener<DeleteEmployeeEvent> listener) {
         addListener(DeleteEmployeeEvent.class, listener);
     }
-
     public void addSaveListener(ComponentEventListener<SaveEmployeeEvent> listener) {
         addListener(SaveEmployeeEvent.class, listener);
     }
-
     public void addCloseListener(ComponentEventListener<CloseEmployeeEvent> listener) {
         addListener(CloseEmployeeEvent.class, listener);
     }
-
     public void setInvalidLogin() {
         loginField.setInvalid(true);
         loginField.setErrorMessage("Such login alredy exists");

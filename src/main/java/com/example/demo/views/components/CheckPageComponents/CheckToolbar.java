@@ -70,6 +70,10 @@ public class CheckToolbar extends VerticalLayout {
 
         fromPicker.setWidth("30%");
         toPicker.setWidth("30%");
+        fromPicker.setMax(LocalDateTime.now());
+        fromPicker.setMin(LocalDateTime.now().minusYears(100));
+        toPicker.setMax(LocalDateTime.now());
+        toPicker.setMin(LocalDateTime.now().minusYears(100));
     }
 
     private void attachValueChangeListeners() {
@@ -126,13 +130,17 @@ public class CheckToolbar extends VerticalLayout {
                 employeePhone,
                 customerSurname,
                 customerPhone,
-                dateFrom != null ? dateFrom.toLocalDate() : null,
-                dateTo != null ? dateTo.toLocalDate() : null
+                dateFrom,
+                dateTo
         );
     }
 
     public void addUpdateListener(ComponentEventListener<UpdateCheckEvent> listener) {
         addListener(UpdateCheckEvent.class, listener);
+    }
+
+    public void setAddButton(boolean b) {
+        addButton.setEnabled(b);
     }
 
     public static class UpdateCheckEvent extends UpdateEvent<CheckToolbar> {
