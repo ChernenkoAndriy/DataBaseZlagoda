@@ -16,6 +16,16 @@ public class EmployeeReportService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public boolean isProductNameValid(String productName) {
+        String sql = """
+            SELECT COUNT(*) 
+            FROM "Product" 
+            WHERE product_name = ?
+            """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, productName);
+        return count != null && count > 0;
+    }
+
     public List<Map<String, Object>> getEmployeesWithNoChecksAndNoProductSales(
             LocalDate startDate, LocalDate endDate, String productName) {
         String sql = """
@@ -48,8 +58,6 @@ public class EmployeeReportService {
                 )
             """;
 
-        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, startDate, endDate, productName);
-
-        return results;
+        return jdbcTemplate.queryForList(sql, startDate, endDate, productName);
     }
 }

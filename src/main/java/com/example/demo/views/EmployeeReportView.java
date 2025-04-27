@@ -3,6 +3,7 @@ package com.example.demo.views;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -34,7 +35,6 @@ public class EmployeeReportView extends VerticalLayout {
     public EmployeeReportView(EmployeeReportService reportService) {
         this.reportService = reportService;
 
-        // Set full size for the view
         setSizeFull();
 
         startDatePicker = new DatePicker("Start Date");
@@ -49,7 +49,7 @@ public class EmployeeReportView extends VerticalLayout {
         searchButton = new Button("Search", event -> onSearchButtonClick());
 
         grid = new Grid<>();
-        grid.setSizeFull(); // Make the grid occupy the full available space
+        grid.setSizeFull();
         grid.addColumn(map -> map.get("id_employee")).setHeader("Employee ID").setAutoWidth(true).setFlexGrow(1);
         grid.addColumn(map -> map.get("empl_surname")).setHeader("Surname").setAutoWidth(true).setFlexGrow(1);
         grid.addColumn(map -> map.get("empl_name")).setHeader("Name").setAutoWidth(true).setFlexGrow(1);
@@ -59,7 +59,7 @@ public class EmployeeReportView extends VerticalLayout {
         inputLayout.setAlignItems(Alignment.BASELINE);
 
         add(inputLayout, grid);
-        setFlexGrow(1, grid); // Ensure the grid grows to fill the available space
+        setFlexGrow(1, grid);
 
         onSearchButtonClick();
     }
@@ -71,6 +71,13 @@ public class EmployeeReportView extends VerticalLayout {
 
         if (startDate == null || endDate == null || productName == null || productName.trim().isEmpty()) {
             grid.setItems();
+            Notification.show("Please fill in all fields correctly.");
+            return;
+        }
+
+        if (!reportService.isProductNameValid(productName)) {
+            grid.setItems();
+            Notification.show("No such product found in the database.");
             return;
         }
 
