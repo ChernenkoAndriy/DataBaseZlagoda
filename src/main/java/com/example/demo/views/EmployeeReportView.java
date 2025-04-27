@@ -34,6 +34,9 @@ public class EmployeeReportView extends VerticalLayout {
     public EmployeeReportView(EmployeeReportService reportService) {
         this.reportService = reportService;
 
+        // Set full size for the view
+        setSizeFull();
+
         startDatePicker = new DatePicker("Start Date");
         startDatePicker.setValue(LocalDate.of(2025, 4, 1)); // Default value
 
@@ -46,15 +49,17 @@ public class EmployeeReportView extends VerticalLayout {
         searchButton = new Button("Search", event -> onSearchButtonClick());
 
         grid = new Grid<>();
-        grid.addColumn(map -> map.get("id_employee")).setHeader("Employee ID");
-        grid.addColumn(map -> map.get("empl_surname")).setHeader("Surname");
-        grid.addColumn(map -> map.get("empl_name")).setHeader("Name");
-        grid.addColumn(map -> map.get("empl_role")).setHeader("Role");
-        grid.setPageSize(5); // Limit to 5 rows
+        grid.setSizeFull(); // Make the grid occupy the full available space
+        grid.addColumn(map -> map.get("id_employee")).setHeader("Employee ID").setAutoWidth(true).setFlexGrow(1);
+        grid.addColumn(map -> map.get("empl_surname")).setHeader("Surname").setAutoWidth(true).setFlexGrow(1);
+        grid.addColumn(map -> map.get("empl_name")).setHeader("Name").setAutoWidth(true).setFlexGrow(1);
+        grid.addColumn(map -> map.get("empl_role")).setHeader("Role").setAutoWidth(true).setFlexGrow(1);
 
         HorizontalLayout inputLayout = new HorizontalLayout(startDatePicker, endDatePicker, productNameField, searchButton);
         inputLayout.setAlignItems(Alignment.BASELINE);
+
         add(inputLayout, grid);
+        setFlexGrow(1, grid); // Ensure the grid grows to fill the available space
 
         onSearchButtonClick();
     }

@@ -46,7 +46,6 @@ public class EmployeeReportService {
                     WHERE 
                         p.product_name = ?
                 )
-            LIMIT 5
             """;
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, startDate, endDate, productName);
