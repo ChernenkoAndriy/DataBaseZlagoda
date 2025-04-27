@@ -27,11 +27,15 @@ public class SalesReportView extends VerticalLayout {
         this.reportService = reportService;
         this.grid = new Grid<>();
 
+        // Make grid take the full width and height of the page
+        setSizeFull();
+        grid.setSizeFull();
+
         // Configure the grid
-        grid.addColumn(map -> map.get("category_name")).setHeader("Category Name");
-        grid.addColumn(map -> map.get("product_name")).setHeader("Product Name");
-        grid.addColumn(map -> map.get("total_quantity_sold")).setHeader("Total Quantity Sold");
-        grid.addColumn(map -> map.get("total_revenue")).setHeader("Total Revenue");
+        grid.addColumn(map -> map.get("category_name")).setHeader("Category Name").setAutoWidth(true).setFlexGrow(1);
+        grid.addColumn(map -> map.get("product_name")).setHeader("Product Name").setAutoWidth(true).setFlexGrow(1);
+        grid.addColumn(map -> map.get("total_quantity_sold")).setHeader("Total Quantity Sold").setAutoWidth(true).setFlexGrow(1);
+        grid.addColumn(map -> map.get("total_revenue")).setHeader("Total Revenue").setAutoWidth(true).setFlexGrow(1);
 
         // Fetch data for the last 30 days as an example
         LocalDate endDate = LocalDate.now();
@@ -39,6 +43,8 @@ public class SalesReportView extends VerticalLayout {
         List<Map<String, Object>> reportData = reportService.getSalesByCategory(startDate, endDate);
         grid.setItems(reportData);
 
+        // Add the grid to the layout
         add(grid);
+        setFlexGrow(1, grid); // Ensure the grid grows to fill the available space
     }
 }
