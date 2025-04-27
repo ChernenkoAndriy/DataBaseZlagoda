@@ -17,68 +17,75 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public class MainLayout extends AppLayout {
 
-    private final SideNav sideMenu = new SideNav();
     private final AuthenticationContext authContext;
+    private final SideNav sideNav;
 
     public MainLayout(AuthenticationContext authContext) {
         this.authContext = authContext;
-        configureNavbar();
-        configureDrawer();
+        this.sideNav = new SideNav();
+        setupNavbar();
+        setupDrawer();
     }
 
-    private void configureNavbar() {
+    private void setupNavbar() {
         DrawerToggle toggle = new DrawerToggle();
         H1 title = new H1("Zlagoda");
-        title.getStyle()
-                .set("font-size", "var(--lumo-font-size-l)")
-                .set("margin", "0");
+        title.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+
         addToNavbar(toggle, title);
     }
 
-    private void configureDrawer() {
-        sideMenu.setWidth("250px");
+    private void setupDrawer() {
+        sideNav.setWidth("250px");
+
         VerticalLayout drawerContent = new VerticalLayout();
         drawerContent.setPadding(false);
         drawerContent.setSpacing(false);
         drawerContent.setSizeFull();
-        addMenuItemsBasedOnRole();
-        drawerContent.add(sideMenu);
-        drawerContent.expand(sideMenu);
 
-        // Додаємо ім'я користувача та кнопку logout
+        addMenuItemsBasedOnRole();
+        drawerContent.add(sideNav);
+        drawerContent.expand(sideNav);
+
         authContext.getAuthenticatedUser(UserDetails.class).ifPresent(user -> {
-            Span username = new Span("Welcome " + user.getUsername());
-            username.getStyle().set("margin-left", "1em");
+            Span username = new Span("Welcome, " + user.getUsername());
+            username.addClassNames(LumoUtility.Margin.Left.MEDIUM, LumoUtility.FontSize.MEDIUM);
 
             Button logoutButton = new Button("Logout", e -> authContext.logout());
-            logoutButton.getStyle()
-                    .set("margin", "1em")
-                    .set("color", "var(--lumo-error-color)")
-                    .set("font-weight", "600");
+            logoutButton.addClassNames(
+                    LumoUtility.Margin.MEDIUM,
+                    LumoUtility.TextColor.ERROR,
+                    LumoUtility.FontWeight.BOLD
+            );
 
             drawerContent.add(username, logoutButton);
         });
 
         Scroller scroller = new Scroller(drawerContent);
-        scroller.setClassName(LumoUtility.Padding.SMALL);
-        scroller.getElement().getStyle().set("scrollbar-width", "none");
+        scroller.addClassName(LumoUtility.Padding.SMALL);
+        scroller.getStyle().set("scrollbar-width", "none");
 
         addToDrawer(scroller);
     }
 
     private void addMenuItemsBasedOnRole() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getAuthorities() == null) {
+            return;
+        }
 
         if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER"))) {
-            sideMenu.addItem(new SideNavItem("Employees", "manager"));
-            sideMenu.addItem(new SideNavItem("Customers", "customers"));
-            sideMenu.addItem(new SideNavItem("Warehouse content", "warehouse"));
-            sideMenu.addItem(new SideNavItem("Product Categories", "categories"));
-            sideMenu.addItem(new SideNavItem("Product Items", "products"));
-            sideMenu.addItem(new SideNavItem("Checks", "checks"));
+            sideNav.addItem(new SideNavItem("Employees", "manager"));
+            sideNav.addItem(new SideNavItem("Customers", "customers"));
+            sideNav.addItem(new SideNavItem("Warehouse Content", "warehouse"));
+            sideNav.addItem(new SideNavItem("Product Categories", "categories"));
+            sideNav.addItem(new SideNavItem("Product Items", "products"));
+            sideNav.addItem(new SideNavItem("Checks", "checks"));
+            sideNav.addItem(new SideNavItem("Sales Report", "sales-report"));
+            sideNav.addItem(new SideNavItem("Employee Report", "employee-report")); // Added Employee Report link
         } else if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_CASHIER"))) {
-            sideMenu.addItem(new SideNavItem("Customers", "customers"));
-            sideMenu.addItem(new SideNavItem("Checks", "checks"));
+            sideNav.addItem(new SideNavItem("Customers", "customers"));
+            sideNav.addItem(new SideNavItem("Checks", "checks"));
         }
     }
 }
