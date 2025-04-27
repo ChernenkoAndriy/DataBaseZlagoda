@@ -1,7 +1,11 @@
 package com.example.demo.views;
 
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.example.demo.views.services.EmployeeReportService;
@@ -22,27 +26,52 @@ public class EmployeeReportView extends VerticalLayout {
 
     private final EmployeeReportService reportService;
     private final Grid<Map<String, Object>> grid;
+    private final DatePicker startDatePicker;
+    private final DatePicker endDatePicker;
+    private final TextField productNameField;
+    private final Button searchButton;
 
     public EmployeeReportView(EmployeeReportService reportService) {
         this.reportService = reportService;
-        this.grid = new Grid<>();
 
-        // Configure the grid
+        startDatePicker = new DatePicker("Start Date");
+        startDatePicker.setValue(LocalDate.of(2025, 4, 1)); // Default value
+
+        endDatePicker = new DatePicker("End Date");
+        endDatePicker.setValue(LocalDate.of(2025, 4, 30)); // Default value
+
+        productNameField = new TextField("Product Name");
+        productNameField.setValue("Milk"); // Default value
+
+        searchButton = new Button("Search", event -> onSearchButtonClick());
+
+        grid = new Grid<>();
         grid.addColumn(map -> map.get("id_employee")).setHeader("Employee ID");
         grid.addColumn(map -> map.get("empl_surname")).setHeader("Surname");
         grid.addColumn(map -> map.get("empl_name")).setHeader("Name");
         grid.addColumn(map -> map.get("empl_role")).setHeader("Role");
+        grid.setPageSize(5); // Limit to 5 rows
 
-        // Fetch data for the specified date range and product
-        LocalDate startDate = LocalDate.of(2025, 4, 1);
-        LocalDate endDate = LocalDate.of(2025, 4, 30);
-        String productName = "Milk";
-        List<Map<String, Object>> reportData = reportService.getEmployeesWithNoChecksAndNoProductSales(startDate, endDate, productName);
-        grid.setItems(reportData);
+        HorizontalLayout inputLayout = new HorizontalLayout(startDatePicker, endDatePicker, productNameField, searchButton);
+        inputLayout.setAlignItems(Alignment.BASELINE);
+        add(inputLayout, grid);
 
-        // Limit to 5 rows for display
-        grid.setPageSize(5);
+        onSearchButtonClick();
+    }
 
-        add(grid);
+    private void onSearchButtonClick() {
+        LocalDate startDate = startDatePicker.getValue();
+        LocalDate endDate = endDatePicker.getValue();
+        String productName = productNameField.getValue();
+
+        if (startDate == null || endDate == null || productName == null || productName.trim().isEmpty()) {
+            grid.setItems();
+            return;
+        }
+
+        List<Map<String, Object>> results = reportService.getEmployeesWithNoChecksAndNoProductSales(
+                startDate, endDate, productName);
+
+        grid.setItems(results);
     }
 }

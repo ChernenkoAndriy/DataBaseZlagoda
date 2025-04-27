@@ -16,7 +16,8 @@ public class EmployeeReportService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Map<String, Object>> getEmployeesWithNoChecksAndNoProductSales(LocalDate startDate, LocalDate endDate, String productName) {
+    public List<Map<String, Object>> getEmployeesWithNoChecksAndNoProductSales(
+            LocalDate startDate, LocalDate endDate, String productName) {
         String sql = """
             SELECT 
                 e.id_employee,
@@ -47,6 +48,9 @@ public class EmployeeReportService {
                 )
             LIMIT 5
             """;
-        return jdbcTemplate.queryForList(sql, startDate, endDate, productName);
+
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, startDate, endDate, productName);
+
+        return results;
     }
 }
