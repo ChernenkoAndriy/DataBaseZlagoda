@@ -1,9 +1,9 @@
 package com.example.demo.views.components.CheckPageComponents;
 
-import com.example.demo.views.repositories.database_entities.Check;
-import com.example.demo.views.repositories.database_entities.CheckEntry;
-import com.example.demo.views.repositories.database_entities.StoreProduct;
-import com.example.demo.views.services.CheckService;
+import com.example.demo.repositories.database_entities.Check;
+import com.example.demo.repositories.database_entities.CheckEntry;
+import com.example.demo.repositories.database_entities.StoreProduct;
+import com.example.demo.services.CheckService;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

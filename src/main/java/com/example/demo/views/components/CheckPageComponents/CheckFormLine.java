@@ -1,7 +1,6 @@
 package com.example.demo.views.components.CheckPageComponents;
 
-import com.example.demo.views.events.DeleteEvent;
-import com.example.demo.views.repositories.database_entities.CheckEntry;
+import com.example.demo.repositories.database_entities.CheckEntry;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
@@ -9,7 +8,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.IntegerField;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 

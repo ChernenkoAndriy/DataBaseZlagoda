@@ -1,6 +1,6 @@
 package com.example.demo.views.components.StoreProductPageComponents;
-import com.example.demo.views.repositories.database_entities.StoreProduct;
-import com.example.demo.views.services.StoreProductService;
+import com.example.demo.repositories.database_entities.StoreProduct;
+import com.example.demo.services.StoreProductService;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.contextmenu.GridMenuItem;

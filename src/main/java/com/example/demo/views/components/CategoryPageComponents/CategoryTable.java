@@ -1,17 +1,13 @@
 package com.example.demo.views.components.CategoryPageComponents;
 
-import com.example.demo.views.repositories.database_entities.Category;
-import com.example.demo.views.repositories.database_entities.Check;
-import com.example.demo.views.services.CategoryService;
-import com.example.demo.views.services.CheckService;
+import com.example.demo.repositories.database_entities.Category;
+import com.example.demo.services.CategoryService;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.contextmenu.GridMenuItem;
 import com.vaadin.flow.component.grid.contextmenu.GridSubMenu;
 
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class CategoryTable extends Grid<Category> {

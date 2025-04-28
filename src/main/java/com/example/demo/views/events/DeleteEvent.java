@@ -1,5 +1,5 @@
 package com.example.demo.views.events;
-import com.example.demo.views.repositories.database_entities.IEntity;
+import com.example.demo.repositories.database_entities.IEntity;
 import com.vaadin.flow.component.Component;
 
 public class DeleteEvent<SOURCE extends Component, ENTITY extends IEntity> extends AbstractEvent<SOURCE, ENTITY> {

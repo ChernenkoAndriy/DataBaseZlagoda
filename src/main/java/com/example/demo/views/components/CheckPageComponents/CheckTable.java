@@ -1,7 +1,7 @@
 package com.example.demo.views.components.CheckPageComponents;
 
-import com.example.demo.views.repositories.database_entities.Check;
-import com.example.demo.views.services.CheckService;
+import com.example.demo.repositories.database_entities.Check;
+import com.example.demo.services.CheckService;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.contextmenu.GridMenuItem;
@@ -9,7 +9,6 @@ import com.vaadin.flow.component.grid.contextmenu.GridSubMenu;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 

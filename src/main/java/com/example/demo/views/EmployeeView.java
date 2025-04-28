@@ -3,7 +3,7 @@ package com.example.demo.views;
 import com.example.demo.views.components.EmployeePageComponents.EmployeeForm;
 import com.example.demo.views.components.EmployeePageComponents.EmployeeToolbar;
 import com.example.demo.views.components.EmployeePageComponents.EmployeeTable;
-import com.example.demo.views.services.EmployeeService;
+import com.example.demo.services.EmployeeService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.button.Button;
@@ -18,14 +18,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
-import com.example.demo.views.repositories.database_entities.Employee;
-import jakarta.annotation.security.PermitAll;
+import com.example.demo.repositories.database_entities.Employee;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DuplicateKeyException;
 
 import java.util.List;
+import java.util.Objects;
+
 //скопіюйте аннотації так як вони є, вони потрібні для роботи сторінки
 @Route(value = "manager", layout = MainLayout.class)
 //в аннотації Route value це назва сторінки, яка мусить бути такою як в ManagerLayout
@@ -59,16 +60,22 @@ public class EmployeeView extends AppLayout {
         this.bar = new EmployeeToolbar(roles);
         configureContent();
         bar.getCheckStatistic().addClickListener(e -> {
-                    bar.updateForm(service.getCashiersWithNumberOfChecks());
-                    bar.openForm();
+            if(Objects.equals(table.asSingleSelect().getValue().getEmpl_role(), "Cashier")) {
+                bar.updateForm(service.getCashiersWithNumberOfChecks(table.asSingleSelect().getValue().getId()));
+                bar.openForm();
+            }
                 });
     }
     //тут модифікація компонентів
     private void configureContent() {
         bar.setWidth("100%");
         table.setMinWidth("130%");
-        table.asSingleSelect().addValueChangeListener(event ->
-                editEmployee(event.getValue()));
+        table.asSingleSelect().addValueChangeListener(event -> {
+            event.getSource().getElement().addEventListener("click", e -> {
+                    bar.getCheckStatistic().setEnabled(!Objects.equals(event.getValue().getEmpl_role(), "Manager"));
+                    editEmployee(event.getValue());
+            });
+        });
         VerticalLayout tableContainer = new VerticalLayout(table);
         tableContainer.setSizeFull();
         tableContainer.setPadding(false);

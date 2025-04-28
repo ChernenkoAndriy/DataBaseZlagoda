@@ -1,8 +1,8 @@
 package com.example.demo.views.components.CustomerPageComponents;
 
 import com.example.demo.views.events.UpdateEvent;
-import com.example.demo.views.repositories.database_entities.CustomerCard;
-import com.example.demo.views.services.CustomerService;
+import com.example.demo.repositories.database_entities.CustomerCard;
+import com.example.demo.services.CustomerService;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -10,7 +10,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.example.demo.views.repositories.database_entities.Employee;
 
 import java.util.List;
 

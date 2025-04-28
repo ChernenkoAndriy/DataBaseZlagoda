@@ -1,6 +1,6 @@
 package com.example.demo.views;
 
-import com.example.demo.views.services.MyUserDetailsService;
+import com.example.demo.services.MyUserDetailsService;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

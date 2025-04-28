@@ -1,11 +1,9 @@
 package com.example.demo.views.components.EmployeePageComponents;
 
-import com.example.demo.views.services.EmployeeService;
+import com.example.demo.services.EmployeeService;
 import com.vaadin.flow.component.grid.Grid;
-import com.example.demo.views.repositories.database_entities.Employee;
+import com.example.demo.repositories.database_entities.Employee;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
-import com.vaadin.flow.component.contextmenu.MenuItem;
-import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.grid.contextmenu.GridMenuItem;
 import com.vaadin.flow.component.grid.contextmenu.GridSubMenu;
 

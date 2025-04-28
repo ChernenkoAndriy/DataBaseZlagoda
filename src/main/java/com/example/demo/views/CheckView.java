@@ -1,11 +1,10 @@
 package com.example.demo.views;
 
+import com.example.demo.services.*;
 import com.example.demo.views.components.CheckPageComponents.CheckForm;
 import com.example.demo.views.components.CheckPageComponents.CheckTable;
 import com.example.demo.views.components.CheckPageComponents.CheckToolbar;
-import com.example.demo.views.components.EmployeePageComponents.EmployeeForm;
-import com.example.demo.views.repositories.database_entities.Check;
-import com.example.demo.views.services.*;
+import com.example.demo.repositories.database_entities.Check;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.button.Button;
@@ -20,9 +19,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
-import com.example.demo.views.repositories.database_entities.Employee;
 import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.annotation.Scope;
 

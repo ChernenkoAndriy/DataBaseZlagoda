@@ -3,7 +3,7 @@ package com.example.demo.views.components.CustomerPageComponents;
 import com.example.demo.views.events.CloseEvent;
 import com.example.demo.views.events.DeleteEvent;
 import com.example.demo.views.events.SaveEvent;
-import com.example.demo.views.repositories.database_entities.CustomerCard;
+import com.example.demo.repositories.database_entities.CustomerCard;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
@@ -14,10 +14,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.validator.StringLengthValidator;
-
-import java.util.function.Consumer;
 
 public class CustomerForm extends Dialog {
     private TextField surname = new TextField("Surname");

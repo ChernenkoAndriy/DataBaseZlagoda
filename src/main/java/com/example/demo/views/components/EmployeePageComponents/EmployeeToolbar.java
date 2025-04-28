@@ -1,20 +1,21 @@
 package com.example.demo.views.components.EmployeePageComponents;
 
 import com.example.demo.views.events.UpdateEvent;
-import com.example.demo.views.services.EmployeeService;
+import com.example.demo.services.EmployeeService;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.example.demo.views.repositories.database_entities.Employee;
+import com.example.demo.repositories.database_entities.Employee;
 
-import java.awt.*;
 import java.util.List;
 
 public class EmployeeToolbar extends HorizontalLayout{
@@ -105,7 +106,6 @@ public void updateForm(List<Employee> cashiers){
         }
     }
     private class CheckNumberForm extends Dialog {
-        private Grid<Employee> table;
         private VerticalLayout layout;
         private List<Employee> employees;
 
@@ -113,37 +113,51 @@ public void updateForm(List<Employee> cashiers){
             setWidth("70%");
             layout = new VerticalLayout();
 
-            // Створення таблиці з тільки необхідними колонками
-            table = new Grid<>();
+            // Title for the form
+            layout.add(new H1("Check statistics"));
 
-            // Додавання тільки потрібних колонок вручну
-            table.addColumn(employee -> employee.getEmpl_name())
-                    .setHeader("Name")
-                    .setSortable(true)
-                    .setAutoWidth(true);
-            table.addColumn(employee -> employee.getEmpl_surname())
-                    .setHeader("Surname")
-                    .setSortable(true)
-                    .setAutoWidth(true);
-            table.addColumn(employee -> employee.getPhone_number())
-                    .setHeader("Phone")
-                    .setSortable(true)
-                    .setAutoWidth(true);
-            table.addColumn(employee -> employee.getNumberOfChecks())
-                    .setHeader("Check Count")
-                    .setSortable(true)
-                    .setAutoWidth(true);
-
-            // Додавання таблиці в layout
-            layout.add(table);
             this.add(layout);
         }
 
-        // Метод для встановлення елементів таблиці
         public void setItems(List<Employee> cashiers) {
             this.employees = cashiers;
-            table.setItems(employees);
+
+            // Clear the layout first
+            layout.removeAll();
+
+            // Iterate over each employee and create a set of fields for each
+            for (Employee employee : employees) {
+                FormLayout formLayout = new FormLayout();
+
+                // Create form fields for each employee's data
+                TextField nameField = new TextField("Name");
+                nameField.setValue(employee.getEmpl_name());
+                nameField.setReadOnly(true); // Set as readonly to prevent editing
+
+                TextField surnameField = new TextField("Surname");
+                surnameField.setValue(employee.getEmpl_surname());
+                surnameField.setReadOnly(true); // Set as readonly to prevent editing
+
+                TextField phoneField = new TextField("Phone");
+                phoneField.setValue(employee.getPhone_number());
+                phoneField.setReadOnly(true); // Set as readonly to prevent editing
+
+                TextField checkCountField = new TextField("Check Count");
+                checkCountField.setValue(String.valueOf(employee.getNumberOfChecks()));
+                checkCountField.setReadOnly(true); // Set as readonly to prevent editing
+
+                TextField soldProductsField = new TextField("Sold Products Amount");
+                soldProductsField.setValue(String.valueOf(employee.getTotalAmountOfProducts()));
+                soldProductsField.setReadOnly(true); // Set as readonly to prevent editing
+
+                // Add fields to the form layout
+                formLayout.add(nameField, surnameField, phoneField, checkCountField, soldProductsField);
+
+                // Add the form layout to the main layout
+                layout.add(formLayout);
+            }
         }
     }
+
 
 }

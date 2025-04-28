@@ -3,7 +3,7 @@ package com.example.demo.views.components.CategoryPageComponents;
 import com.example.demo.views.events.CloseEvent;
 import com.example.demo.views.events.DeleteEvent;
 import com.example.demo.views.events.SaveEvent;
-import com.example.demo.views.repositories.database_entities.Category;
+import com.example.demo.repositories.database_entities.Category;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;

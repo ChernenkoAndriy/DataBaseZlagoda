@@ -1,9 +1,8 @@
 package com.example.demo.views.components.CategoryPageComponents;
 
-import com.example.demo.views.components.EmployeePageComponents.EmployeeToolbar;
 import com.example.demo.views.events.UpdateEvent;
-import com.example.demo.views.repositories.database_entities.Category;
-import com.example.demo.views.services.CategoryService;
+import com.example.demo.repositories.database_entities.Category;
+import com.example.demo.services.CategoryService;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -12,7 +11,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import org.checkerframework.checker.units.qual.C;
 
 import java.util.List;
 

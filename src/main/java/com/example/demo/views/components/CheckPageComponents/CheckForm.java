@@ -1,12 +1,15 @@
 package com.example.demo.views.components.CheckPageComponents;
 
+import com.example.demo.repositories.database_entities.Check;
+import com.example.demo.repositories.database_entities.CustomerCard;
+import com.example.demo.repositories.database_entities.Employee;
+import com.example.demo.repositories.database_entities.StoreProduct;
 import com.example.demo.views.events.CloseEvent;
 import com.example.demo.views.events.DeleteEvent;
 import com.example.demo.views.events.SaveEvent;
-import com.example.demo.views.repositories.database_entities.*;
-import com.example.demo.views.services.CheckService;
-import com.example.demo.views.services.CustomerService;
-import com.example.demo.views.services.StoreProductService;
+import com.example.demo.services.CheckService;
+import com.example.demo.services.CustomerService;
+import com.example.demo.services.StoreProductService;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;

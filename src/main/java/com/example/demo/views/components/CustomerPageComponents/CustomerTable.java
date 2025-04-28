@@ -1,7 +1,7 @@
 package com.example.demo.views.components.CustomerPageComponents;
 
-import com.example.demo.views.repositories.database_entities.CustomerCard;
-import com.example.demo.views.services.CustomerService;
+import com.example.demo.repositories.database_entities.CustomerCard;
+import com.example.demo.services.CustomerService;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.contextmenu.GridMenuItem;

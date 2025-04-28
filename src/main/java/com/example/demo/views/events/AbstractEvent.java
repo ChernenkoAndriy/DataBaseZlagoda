@@ -1,6 +1,6 @@
 package com.example.demo.views.events;
 
-import com.example.demo.views.repositories.database_entities.IEntity;
+import com.example.demo.repositories.database_entities.IEntity;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 
