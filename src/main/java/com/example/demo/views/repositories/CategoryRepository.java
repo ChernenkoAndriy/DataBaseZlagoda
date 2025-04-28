@@ -2,6 +2,8 @@ package com.example.demo.views.repositories;
 
 import com.example.demo.views.repositories.database_entities.Category;
 import com.example.demo.views.repositories.mappers.CategoryRowMapper;
+import org.checkerframework.checker.units.qual.C;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -77,4 +79,28 @@ public class CategoryRepository extends AbstractRepository<Category, Integer> {
 
         return namedJdbcTemplate.query(sql, params, new CategoryRowMapper());
     }
+
+    public List<Category> getAllWithoutSales() {
+        String sql = "SELECT c.category_number, c.category_name " +
+                "FROM public.\"Category\" c " +
+                "WHERE EXISTS ( " +
+                "    SELECT 1 " +
+                "    FROM public.\"Product\" p " +
+                "    WHERE p.category_number = c.category_number " +
+                ") " +
+                "AND NOT EXISTS ( " +
+                "    SELECT 1 " +
+                "    FROM public.\"Store_Product\" sp " +
+                "    WHERE sp.id_product IN ( " +
+                "        SELECT p.id_product " +
+                "        FROM public.\"Product\" p " +
+                "        WHERE p.category_number = c.category_number " +
+                "    ) " +
+                "    AND sp.promotional_product = true " +
+                ");";
+
+        // Використовуємо BeanPropertyRowMapper для автоматичного мапінгу результатів запиту в об'єкти Category
+        return namedJdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Category.class));
+    }
+
 }

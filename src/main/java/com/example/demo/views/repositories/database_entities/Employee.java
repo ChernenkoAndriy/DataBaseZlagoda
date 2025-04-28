@@ -34,6 +34,16 @@ private String phone_number;
 private String city;
 private String street;
 private String zip_code;
+
+    public void setNumberOfChecks(Long numberOfChecks) {
+        this.numberOfChecks = numberOfChecks;
+    }
+
+    public Long getNumberOfChecks() {
+        return numberOfChecks;
+    }
+
+    private Long numberOfChecks;
     public Employee() {
     }
     public Employee(UUID id_employee, String empl_surname, String empl_name, String empl_patronymic, String empl_role, BigDecimal salary, LocalDate date_of_birth, LocalDate date_of_start, String phone_number, String city, String street, String zip_code) {

@@ -58,6 +58,10 @@ public class CategoryView extends AppLayout {
         categoryForm.addCloseListener(e -> closeEditor());
         bar.getAddButton().addClickListener(e -> addCategory());
         bar.addUpdateListener(e -> updateList());
+        bar.getSalesStatisticsButton().addClickListener(e -> {
+            bar.openForm();
+            bar.setItems(service.getAllWithoutSales());
+        });
     }
     private void showErrorNotification(String message) {
         Notification notification = new Notification();

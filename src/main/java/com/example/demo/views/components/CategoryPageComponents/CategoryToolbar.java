@@ -6,10 +6,13 @@ import com.example.demo.views.repositories.database_entities.Category;
 import com.example.demo.views.services.CategoryService;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.List;
 
@@ -17,7 +20,18 @@ public class CategoryToolbar extends HorizontalLayout {
     private final Button printButton = new Button("Print");
     private final Button exportButton = new Button("Export");
     private final Button addButton = new Button("Add");
+    private Button salesStatisticsButton = new Button("Categories without Sale products");
     private TextField filterField = new TextField();
+
+    public Button getSalesStatisticsButton() {
+        return salesStatisticsButton;
+    }
+
+    public StatisticsForm getStatisticsForm() {
+        return statisticsForm;
+    }
+
+    private StatisticsForm statisticsForm = new StatisticsForm();
 
     public Button getAddButton() {
         return addButton;
@@ -35,6 +49,7 @@ public class CategoryToolbar extends HorizontalLayout {
         configureComponents();
         addComponentAsFirst(addButton);
         add(rightLayout);
+        add(salesStatisticsButton);
     }
     protected void configureComponents() {
         filterField.setPlaceholder("Find category by name");
@@ -53,6 +68,33 @@ public class CategoryToolbar extends HorizontalLayout {
     public static class UpdateCategoryEvent extends UpdateEvent<CategoryToolbar> {
         public UpdateCategoryEvent(CategoryToolbar categoryToolbar) {
             super(categoryToolbar);
+        }
+    }
+    public void setItems(List<Category> categories){
+        statisticsForm.setItems(categories);
+
+    }
+    public void openForm(){
+        statisticsForm.open();
+    }
+    private class StatisticsForm extends Dialog {
+        private List<Category> categories;
+        private Grid<Category> table;
+        private HorizontalLayout layout;
+        StatisticsForm(){
+            layout = new HorizontalLayout();
+            table = new Grid<>();
+            add(layout);
+            layout.add(table);
+            setWidth("35%");
+            table.addColumn(Category::getCategory_name).setHeader("Category name").setSortable(true);
+            table.setColumnReorderingAllowed(true);
+            table.setMultiSort(true);
+        }
+
+        public void setItems(List<Category> categories){
+            this.categories=categories;
+            table.setItems(this.categories);
         }
     }
 }

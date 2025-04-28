@@ -106,4 +106,7 @@ public class EmployeeService extends AbstractService<Employee, UUID>{
     public Employee findById(UUID id){
         return employeeRepository.findById(id);
     }
+    public List<Employee> getCashiersWithNumberOfChecks(){
+        return employeeRepository.getCashiersWithNumberOfChecks();
+    }
 }

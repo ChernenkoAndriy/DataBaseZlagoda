@@ -5,7 +5,7 @@
 -- Dumped from database version 17.2
 -- Dumped by pg_dump version 17.2
 
--- Started on 2025-04-25 00:48:33
+-- Started on 2025-04-28 13:05:31
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -318,6 +318,7 @@ COPY public."Category" (category_number, category_name) FROM stdin;
 7	Alcoholic Drinks
 2	Sea Products
 4	Fruits and Vegetables
+18	Sweets
 \.
 
 
@@ -453,6 +454,8 @@ COPY public."Product" (id_product, category_number, product_name, characteristic
 3	1	Pork Ribs	Marinated, 800g
 30	4	Cucumber	Good thing
 1	1	Beef Steak	Grass-fed, 500g, good staff
+32	18	Korivka	Nice thing
+33	18	Romashka	AUUgh
 \.
 
 
@@ -564,7 +567,7 @@ d0c3e984-6544-4701-af87-cf673c3d34af	\N	14	31.0000	60	f
 -- Name: Category_category_number_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Category_category_number_seq"', 17, true);
+SELECT pg_catalog.setval('public."Category_category_number_seq"', 18, true);
 
 
 --
@@ -573,7 +576,7 @@ SELECT pg_catalog.setval('public."Category_category_number_seq"', 17, true);
 -- Name: Product_id_product_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Product_id_product_seq"', 31, true);
+SELECT pg_catalog.setval('public."Product_id_product_seq"', 33, true);
 
 
 --
@@ -780,7 +783,7 @@ ALTER TABLE ONLY public."Store_Product"
     ADD CONSTRAINT id_product FOREIGN KEY (id_product) REFERENCES public."Product"(id_product) ON UPDATE CASCADE NOT VALID;
 
 
--- Completed on 2025-04-25 00:48:33
+-- Completed on 2025-04-28 13:05:31
 
 --
 -- PostgreSQL database dump complete

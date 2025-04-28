@@ -57,4 +57,7 @@ public class CategoryService extends AbstractService<Category, Integer>{
     public List<Category> getAllBy(String name){
         return repository.getAllBy(name);
     }
+    public List<Category> getAllWithoutSales(){
+        return repository.getAllWithoutSales();
+    }
 }

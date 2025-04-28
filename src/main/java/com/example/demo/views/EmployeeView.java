@@ -58,6 +58,10 @@ public class EmployeeView extends AppLayout {
         roles=service.getAllRoles();
         this.bar = new EmployeeToolbar(roles);
         configureContent();
+        bar.getCheckStatistic().addClickListener(e -> {
+                    bar.updateForm(service.getCashiersWithNumberOfChecks());
+                    bar.openForm();
+                });
     }
     //тут модифікація компонентів
     private void configureContent() {
