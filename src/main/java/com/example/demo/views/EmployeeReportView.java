@@ -7,6 +7,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.example.demo.views.services.EmployeeReportService;
@@ -36,6 +37,13 @@ public class EmployeeReportView extends VerticalLayout {
         this.reportService = reportService;
 
         setSizeFull();
+
+        // Add query description
+        Span queryDescription = new Span("Employees who did not create any checks in a given period and who did not sell a specific product (e.g., product by name) in any of their checks.");
+        queryDescription.getStyle()
+                .set("font-size", "16px")
+                .set("font-weight", "bold")
+                .set("margin-bottom", "0px");
 
         startDatePicker = new DatePicker("Start Date");
         startDatePicker.setValue(LocalDate.of(2025, 4, 1)); // Default value
@@ -74,7 +82,7 @@ public class EmployeeReportView extends VerticalLayout {
         HorizontalLayout inputLayout = new HorizontalLayout(startDatePicker, endDatePicker, productNameField, searchButton);
         inputLayout.setAlignItems(Alignment.BASELINE);
 
-        add(inputLayout, grid);
+        add(queryDescription, inputLayout, grid);
         setFlexGrow(1, grid);
 
         onSearchButtonClick();
