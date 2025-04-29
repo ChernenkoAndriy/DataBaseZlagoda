@@ -31,11 +31,30 @@ public class SalesReportView extends VerticalLayout {
         setSizeFull();
         grid.setSizeFull();
 
-        // Configure the grid
-        grid.addColumn(map -> map.get("category_name")).setHeader("Category Name").setAutoWidth(true).setFlexGrow(1);
-        grid.addColumn(map -> map.get("product_name")).setHeader("Product Name").setAutoWidth(true).setFlexGrow(1);
-        grid.addColumn(map -> map.get("total_quantity_sold")).setHeader("Total Quantity Sold").setAutoWidth(true).setFlexGrow(1);
-        grid.addColumn(map -> map.get("total_revenue")).setHeader("Total Revenue").setAutoWidth(true).setFlexGrow(1);
+        // Configure the grid columns and enable sorting
+        grid.addColumn(map -> map.get("category_name"))
+                .setHeader("Category Name")
+                .setAutoWidth(true)
+                .setFlexGrow(1)
+                .setSortable(true); // Enable sorting for Category Name
+
+        grid.addColumn(map -> map.get("product_name"))
+                .setHeader("Product Name")
+                .setAutoWidth(true)
+                .setFlexGrow(1)
+                .setSortable(true); // Enable sorting for Product Name
+
+        grid.addColumn(map -> map.get("total_quantity_sold"))
+                .setHeader("Total Quantity Sold")
+                .setAutoWidth(true)
+                .setFlexGrow(1)
+                .setSortable(true); // Enable sorting for Total Quantity Sold
+
+        grid.addColumn(map -> map.get("total_revenue"))
+                .setHeader("Total Revenue")
+                .setAutoWidth(true)
+                .setFlexGrow(1)
+                .setSortable(true); // Enable sorting for Total Revenue
 
         // Fetch data for the last 30 days as an example
         LocalDate endDate = LocalDate.now();
