@@ -2,6 +2,7 @@ package com.example.demo.views;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.example.demo.views.services.ReportService;
@@ -30,6 +31,13 @@ public class SalesReportView extends VerticalLayout {
         // Make grid take the full width and height of the page
         setSizeFull();
         grid.setSizeFull();
+
+        // Add query description
+        Span queryDescription = new Span("For a given time period, show the total quantity and total revenue of products sold by product category, including product names and category names, grouped by category.");
+        queryDescription.getStyle()
+                .set("font-size", "16px")
+                .set("font-weight", "bold")
+                .set("margin-bottom", "17px");
 
         // Configure the grid columns and enable sorting
         grid.addColumn(map -> map.get("category_name"))
@@ -62,8 +70,8 @@ public class SalesReportView extends VerticalLayout {
         List<Map<String, Object>> reportData = reportService.getSalesByCategory(startDate, endDate);
         grid.setItems(reportData);
 
-        // Add the grid to the layout
-        add(grid);
+        // Add the description and grid to the layout
+        add(queryDescription, grid);
         setFlexGrow(1, grid); // Ensure the grid grows to fill the available space
     }
 }
