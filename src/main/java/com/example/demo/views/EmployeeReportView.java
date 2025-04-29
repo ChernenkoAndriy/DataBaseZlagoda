@@ -50,10 +50,26 @@ public class EmployeeReportView extends VerticalLayout {
 
         grid = new Grid<>();
         grid.setSizeFull();
-        grid.addColumn(map -> map.get("id_employee")).setHeader("Employee ID").setAutoWidth(true).setFlexGrow(1);
-        grid.addColumn(map -> map.get("empl_surname")).setHeader("Surname").setAutoWidth(true).setFlexGrow(1);
-        grid.addColumn(map -> map.get("empl_name")).setHeader("Name").setAutoWidth(true).setFlexGrow(1);
-        grid.addColumn(map -> map.get("empl_role")).setHeader("Role").setAutoWidth(true).setFlexGrow(1);
+        grid.addColumn(map -> map.get("id_employee"))
+                .setHeader("Employee ID")
+                .setAutoWidth(true)
+                .setFlexGrow(1)
+                .setSortable(true); // Enable sorting for Employee ID
+        grid.addColumn(map -> map.get("empl_surname"))
+                .setHeader("Surname")
+                .setAutoWidth(true)
+                .setFlexGrow(1)
+                .setSortable(true); // Enable sorting for Surname
+        grid.addColumn(map -> map.get("empl_name"))
+                .setHeader("Name")
+                .setAutoWidth(true)
+                .setFlexGrow(1)
+                .setSortable(true); // Enable sorting for Name
+        grid.addColumn(map -> map.get("empl_role"))
+                .setHeader("Role")
+                .setAutoWidth(true)
+                .setFlexGrow(1)
+                .setSortable(true); // Enable sorting for Role
 
         HorizontalLayout inputLayout = new HorizontalLayout(startDatePicker, endDatePicker, productNameField, searchButton);
         inputLayout.setAlignItems(Alignment.BASELINE);
