@@ -39,7 +39,7 @@ public class EmployeeReportView extends VerticalLayout {
         setSizeFull();
 
         // Add query description
-        Span queryDescription = new Span("Employees who did not create any checks in a given period and who did not sell a specific product (e.g., product by name) in any of their checks.");
+        Span queryDescription = new Span("Employees who did not create any checks in a given period and who did not sell a specific product in any of their checks.");
         queryDescription.getStyle()
                 .set("font-size", "16px")
                 .set("font-weight", "bold")

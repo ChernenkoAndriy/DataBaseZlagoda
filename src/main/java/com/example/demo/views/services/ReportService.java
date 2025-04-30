@@ -18,25 +18,20 @@ public class ReportService {
 
     public List<Map<String, Object>> getSalesByCategory(LocalDate startDate, LocalDate endDate) {
         String sql = """
-            SELECT 
-                c.category_name,
-                p.product_name,
-                SUM(s.product_number) AS total_quantity_sold,
-                SUM(s.selling_price * s.product_number) AS total_revenue
-            FROM 
-                "Category" c
-                JOIN "Product" p ON c.category_number = p.category_number
-                JOIN "Store_Product" sp ON p.id_product = sp.id_product
-                JOIN "Sale" s ON sp."UPC" = s."UPC"
-                JOIN "Check" ch ON s.check_number = ch.check_number
-            WHERE 
-                ch.print_date BETWEEN ? AND ?
-            GROUP BY 
-                c.category_name, 
-                p.product_name
-            ORDER BY 
-                c.category_name, 
-                p.product_name
+            SELECT c.category_name,
+                   p.product_name,
+                   SUM(s.product_number) AS total_quantity_sold,
+                   SUM(s.selling_price * s.product_number) AS total_revenue
+            FROM "Category" c
+                 JOIN "Product" p ON c.category_number = p.category_number
+                 JOIN "Store_Product" sp ON p.id_product = sp.id_product
+                 JOIN "Sale" s ON sp."UPC" = s."UPC"
+                 JOIN "Check" ch ON s.check_number = ch.check_number
+            WHERE ch.print_date BETWEEN ? AND ?
+            GROUP BY c.category_name, 
+                     p.product_name
+            ORDER BY c.category_name, 
+                     p.product_name
             """;
         return jdbcTemplate.queryForList(sql, startDate, endDate);
     }

@@ -33,7 +33,7 @@ public class SalesReportView extends VerticalLayout {
         grid.setSizeFull();
 
         // Add query description
-        Span queryDescription = new Span("For a given time period, show the total quantity and total revenue of products sold by product category, including product names and category names, grouped by category.");
+        Span queryDescription = new Span("The total quantity and total revenue of products sold by product category, including product names and category names, grouped by category, for a month.");
         queryDescription.getStyle()
                 .set("font-size", "16px")
                 .set("font-weight", "bold")

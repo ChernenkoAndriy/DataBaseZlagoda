@@ -29,32 +29,23 @@ public class EmployeeReportService {
     public List<Map<String, Object>> getEmployeesWithNoChecksAndNoProductSales(
             LocalDate startDate, LocalDate endDate, String productName) {
         String sql = """
-            SELECT 
-                e.id_employee,
-                e.empl_surname,
-                e.empl_name,
-                e.empl_role
-            FROM 
-                "Employee" e
-            WHERE 
-                e.id_employee NOT IN (
-                    SELECT 
-                        ch.id_employee 
-                    FROM 
-                        "Check" ch 
-                    WHERE 
-                        ch.print_date BETWEEN ? AND ?
-                )
-                AND e.id_employee NOT IN (
-                    SELECT 
-                        ch2.id_employee 
-                    FROM 
-                        "Check" ch2
-                        JOIN "Sale" s ON ch2.check_number = s.check_number
-                        JOIN "Store_Product" sp ON s."UPC" = sp."UPC"
-                        JOIN "Product" p ON sp.id_product = p.id_product
-                    WHERE 
-                        p.product_name = ?
+            SELECT e.id_employee,
+                   e.empl_surname,
+                   e.empl_name,
+                   e.empl_role
+            FROM "Employee" e
+            WHERE e.id_employee NOT IN (
+                SELECT ch.id_employee 
+                FROM "Check" ch 
+                WHERE ch.print_date BETWEEN ? AND ?
+            )
+            AND e.id_employee NOT IN (
+                SELECT ch2.id_employee 
+                FROM "Check" ch2
+                    JOIN "Sale" s ON ch2.check_number = s.check_number
+                    JOIN "Store_Product" sp ON s."UPC" = sp."UPC"
+                    JOIN "Product" p ON sp.id_product = p.id_product
+                WHERE p.product_name = ?
                 )
             """;
 
