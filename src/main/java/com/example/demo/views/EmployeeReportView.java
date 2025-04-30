@@ -38,12 +38,20 @@ public class EmployeeReportView extends VerticalLayout {
 
         setSizeFull();
 
-        // Add query description
-        Span queryDescription = new Span("Employees who did not create any checks in a given period and who did not sell a specific product in any of their checks.");
+        // Query description
+        Span queryDescription = new Span("Find employees who did not create any checks in a given period and who did not sell a specific product (e.g., product by name) in any of their checks.");
         queryDescription.getStyle()
                 .set("font-size", "16px")
-                .set("font-weight", "bold")
-                .set("margin-bottom", "0px");
+                .set("font-weight", "bold");
+
+        // Update button
+        Button updateButton = new Button("Update", event -> onSearchButtonClick());
+        updateButton.getStyle().set("margin-left", "10px");
+
+        // Layout for description and button
+        HorizontalLayout headerLayout = new HorizontalLayout(queryDescription, updateButton);
+        headerLayout.setAlignItems(Alignment.BASELINE);
+        headerLayout.getStyle().set("margin-bottom", "10px");
 
         startDatePicker = new DatePicker("Start Date");
         startDatePicker.setValue(LocalDate.of(2025, 4, 1)); // Default value
@@ -82,7 +90,7 @@ public class EmployeeReportView extends VerticalLayout {
         HorizontalLayout inputLayout = new HorizontalLayout(startDatePicker, endDatePicker, productNameField, searchButton);
         inputLayout.setAlignItems(Alignment.BASELINE);
 
-        add(queryDescription, inputLayout, grid);
+        add(headerLayout, inputLayout, grid);
         setFlexGrow(1, grid);
 
         onSearchButtonClick();
