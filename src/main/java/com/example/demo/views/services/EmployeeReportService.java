@@ -47,6 +47,9 @@ public class EmployeeReportService {
                     JOIN "Product" p ON sp.id_product = p.id_product
                 WHERE p.product_name = ?
                 )
+            AND e.empl_role = 'Cashier'
+            ORDER BY e.empl_surname
+            LIMIT 5
             """;
 
         return jdbcTemplate.queryForList(sql, startDate, endDate, productName);

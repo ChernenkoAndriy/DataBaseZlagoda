@@ -30,8 +30,8 @@ public class ReportService {
             WHERE ch.print_date BETWEEN ? AND ?
             GROUP BY c.category_name, 
                      p.product_name
-            ORDER BY c.category_name, 
-                     p.product_name
+            ORDER BY total_revenue DESC 
+            LIMIT 5
             """;
         return jdbcTemplate.queryForList(sql, startDate, endDate);
     }
