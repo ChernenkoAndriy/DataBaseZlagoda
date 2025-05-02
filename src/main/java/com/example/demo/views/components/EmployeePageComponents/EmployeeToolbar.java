@@ -13,9 +13,14 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.converter.StringToLongConverter;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.example.demo.repositories.database_entities.Employee;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class EmployeeToolbar extends HorizontalLayout{
@@ -37,7 +42,6 @@ public class EmployeeToolbar extends HorizontalLayout{
     public CheckNumberForm getCheckNumberForm() {
         return checkNumberForm;
     }
-
     private CheckNumberForm checkNumberForm = new CheckNumberForm();
     public EmployeeToolbar(List<String> roles){
         addButton.addThemeName("primary");
@@ -100,61 +104,85 @@ public void openForm(){
 public void updateForm(List<Employee> cashiers){
         checkNumberForm.setItems(cashiers);
 }
+public void setService(EmployeeService service){
+        checkNumberForm.setService(service);
+}
     public static class UpdateEmployeeEvent extends UpdateEvent<EmployeeToolbar> {
         public UpdateEmployeeEvent(EmployeeToolbar employeeToolbar) {
             super(employeeToolbar);
         }
     }
     private class CheckNumberForm extends Dialog {
-        private VerticalLayout layout;
-        private List<Employee> employees;
+        private final VerticalLayout layout;
+        private final H1 title = new H1("Check Statistics");
+        private final ComboBox<Employee> cashierChooser = new ComboBox<>("Select Cashier");
+        private final TextField checkCountField = new TextField("Check Count");
+        private final TextField soldProductsField = new TextField("Sold Products Amount");
+        private final Binder<Employee> binder = new Binder<>(Employee.class);
+        private List<Employee> employees = new ArrayList<>();
+        private EmployeeService service;
 
         public CheckNumberForm() {
-            setWidth("70%");
+            setWidth("600px");
+
             layout = new VerticalLayout();
+            layout.setWidth("100%");
+            layout.setPadding(true);
+            layout.setSpacing(true);
 
-            // Title for the form
-            layout.add(new H1("Check statistics"));
+            title.getStyle()
+                    .set("text-align", "center")
+                    .set("width", "100%");
 
-            this.add(layout);
+            cashierChooser.setItemLabelGenerator(e ->
+                    e.getPhone_number() + " " + e.getEmpl_surname() + " " + e.getEmpl_name()
+            );
+            cashierChooser.setWidthFull();
+            cashierChooser.addValueChangeListener(event -> {
+                Employee selected = event.getValue();
+                if (selected != null) {
+                    setEmployee(selected);
+                }
+            });
+
+            checkCountField.setReadOnly(true);
+            checkCountField.setWidthFull();
+
+            soldProductsField.setReadOnly(true);
+            soldProductsField.setWidthFull();
+
+            binder.forField(checkCountField)
+                    .withConverter(new StringToLongConverter("Must be a number"))
+                    .bind(
+                            emp -> emp.getNumberOfChecks() != null ? emp.getNumberOfChecks() : 0L,
+                            (emp, value) -> {} // read-only, setter пустий
+                    );
+
+            binder.forField(soldProductsField)
+                    .withConverter(new StringToLongConverter("Must be a number"))
+                    .bind(
+                            emp -> emp.getTotalAmountOfProducts() != null ? emp.getTotalAmountOfProducts() : 0L,
+                            (emp, value) -> {} // read-only, setter пустий
+                    );
+
+            layout.add(title, cashierChooser, checkCountField, soldProductsField);
+            add(layout);
+        }
+
+        public void setService(EmployeeService service) {
+            this.service = service;
+        }
+
+        public void setEmployee(Employee employee) {
+            employee = service.getCashiersWithNumberOfChecks(employee.getId()).getFirst();
+            binder.setBean(employee);
         }
 
         public void setItems(List<Employee> cashiers) {
-            this.employees = cashiers;
-
-            // Clear the layout first
-            layout.removeAll();
-
-            // Iterate over each employee and create a set of fields for each
-            for (Employee employee : employees) {
-                FormLayout formLayout = new FormLayout();
-
-                // Create form fields for each employee's data
-                TextField nameField = new TextField("Name");
-                nameField.setValue(employee.getEmpl_name());
-                nameField.setReadOnly(true); // Set as readonly to prevent editing
-
-                TextField surnameField = new TextField("Surname");
-                surnameField.setValue(employee.getEmpl_surname());
-                surnameField.setReadOnly(true); // Set as readonly to prevent editing
-
-                TextField phoneField = new TextField("Phone");
-                phoneField.setValue(employee.getPhone_number());
-                phoneField.setReadOnly(true); // Set as readonly to prevent editing
-
-                TextField checkCountField = new TextField("Check Count");
-                checkCountField.setValue(String.valueOf(employee.getNumberOfChecks()));
-                checkCountField.setReadOnly(true); // Set as readonly to prevent editing
-
-                TextField soldProductsField = new TextField("Sold Products Amount");
-                soldProductsField.setValue(String.valueOf(employee.getTotalAmountOfProducts()));
-                soldProductsField.setReadOnly(true); // Set as readonly to prevent editing
-
-                // Add fields to the form layout
-                formLayout.add(nameField, surnameField, phoneField, checkCountField, soldProductsField);
-
-                // Add the form layout to the main layout
-                layout.add(formLayout);
+            this.employees = cashiers != null ? cashiers : new ArrayList<>();
+            cashierChooser.setItems(this.employees);
+            if (!this.employees.isEmpty()) {
+                cashierChooser.setValue(this.employees.getFirst());
             }
         }
     }

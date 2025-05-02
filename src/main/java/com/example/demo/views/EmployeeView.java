@@ -27,54 +27,35 @@ import org.springframework.dao.DuplicateKeyException;
 import java.util.List;
 import java.util.Objects;
 
-//скопіюйте аннотації так як вони є, вони потрібні для роботи сторінки
 @Route(value = "manager", layout = MainLayout.class)
-//в аннотації Route value це назва сторінки, яка мусить бути такою як в ManagerLayout
-//там бокова панель яка направляє на сторінку за цим value
-//layout = ManagerLayout.class потрібна щоб на сторінку автоматично додалась меню та заголовок,
 @SpringComponent
 @Scope("prototype")
 @RolesAllowed("ROLE_MANAGER")
 @PageTitle("Employees | ZLAGODA")
 public class EmployeeView extends AppLayout {
-    //це компонент табличка, його дивитись окремо
     protected EmployeeTable table;
-    //це панель з елементами над таблицею, теж дивитись
     protected EmployeeToolbar bar;
-    //цей клас буде створений для виконання запитів до бд
     protected EmployeeService service;
-    //це формочка що додається на сторінку при редагуванні, теж подивіться
     protected EmployeeForm employeeForm;
-    //для кожної сторінки набір таких класів буде один і той самий
-
-    //клас сервісу створиться автоматично програмою, тому клас можна створити з пустим конструктором
-    //дивіться сервіс щоб зрозуміти
     public EmployeeView(EmployeeService service) {
-        //метод  отримує список посад
         List<String> roles = service.getAllRoles();
-        //ініціалізація
         this.employeeForm = new EmployeeForm(roles);
         this.service = service;
         this.table = new EmployeeTable(service);
         roles=service.getAllRoles();
         this.bar = new EmployeeToolbar(roles);
         configureContent();
+        bar.setService(service);
         bar.getCheckStatistic().addClickListener(e -> {
-            if(Objects.equals(table.asSingleSelect().getValue().getEmpl_role(), "Cashier")) {
-                bar.updateForm(service.getCashiersWithNumberOfChecks(table.asSingleSelect().getValue().getId()));
+                bar.updateForm(service.getAllBy(null, "Cashier", null));
                 bar.openForm();
-            }
                 });
     }
-    //тут модифікація компонентів
     private void configureContent() {
         bar.setWidth("100%");
         table.setMinWidth("130%");
         table.asSingleSelect().addValueChangeListener(event -> {
-            event.getSource().getElement().addEventListener("click", e -> {
-                    bar.getCheckStatistic().setEnabled(!Objects.equals(event.getValue().getEmpl_role(), "Manager"));
-                    editEmployee(event.getValue());
-            });
+           editEmployee(event.getValue());
         });
         VerticalLayout tableContainer = new VerticalLayout(table);
         tableContainer.setSizeFull();
@@ -83,19 +64,12 @@ public class EmployeeView extends AppLayout {
         VerticalLayout content = new VerticalLayout(bar, tableContainer);
         content.setSizeFull();
         setContent(content);
-        //назначаються слухачі подій
-        //розберіть що тут відбувається коли прочитаєте решту класів
         employeeForm.addSaveListener(this::saveEmployee);
         employeeForm.addDeleteListener(this::deleteEmployee);
         employeeForm.addCloseListener(e -> closeEditor());
-        //назначаємо на кнопку відкриття пустої ворми
         bar.getAddButton().addClickListener(e -> addEmployee());
-        //назначаємо слухача на оновлення сторінки(
-        // подія update викликається коли міняються значення фільтрів)
         bar.addUpdateListener(e -> updateList());
     }
-    //метод показує поверх сторінки повідомлення про помилку(коли не можемо видалити
-    // працівника наприклад)
     private void showErrorNotification(String message) {
         Notification notification = new Notification();
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);

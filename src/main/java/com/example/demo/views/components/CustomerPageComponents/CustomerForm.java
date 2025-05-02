@@ -11,6 +11,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -21,7 +22,7 @@ public class CustomerForm extends Dialog {
     private TextField name = new TextField("Name");
     private TextField patronymic = new TextField("Patronymic");
     private TextField phoneNumber = new TextField("Phone Number");
-    private NumberField percent = new NumberField("Discount percent");
+    private IntegerField percent = new IntegerField("Discount percent");
 
     // Address fields
     protected TextField cityField = new TextField("City");
@@ -94,7 +95,7 @@ public class CustomerForm extends Dialog {
                 .asRequired("Percent is required")
                 .withValidator(p -> p == null || (p >= 0 && p <= 100),
                         "Percent must be between 0 and 100")
-                .bind(CustomerCard::getDoublePercent, CustomerCard::setDoublePercent);
+                .bind(CustomerCard::getPercent, CustomerCard::setPercent);
 
         // City: optional, 2–50 chars
         binder.forField(cityField)

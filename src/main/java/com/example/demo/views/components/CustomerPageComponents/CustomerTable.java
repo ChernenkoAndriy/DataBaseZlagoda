@@ -28,7 +28,7 @@ public class CustomerTable extends Grid<CustomerCard> {
         columnsMap.put("City", addColumn(CustomerCard::getCity).setHeader("City").setSortable(true));
         columnsMap.put("Street", addColumn(CustomerCard::getStreet).setHeader("Street").setSortable(true));
         columnsMap.put("Zip code", addColumn(CustomerCard::getZipCode).setHeader("Zip code").setSortable(true));
-        columnsMap.put("Percent", addColumn(CustomerCard::getPercent).setHeader("Percent").setSortable(true));
+        columnsMap.put("Percent", addColumn(CustomerCard::getDoublePercent).setHeader("Percent").setSortable(true));
 
         setColumnReorderingAllowed(true);
         getColumns().forEach(col -> col.setAutoWidth(true));

@@ -87,11 +87,6 @@ public class EmployeeRepository extends AbstractRepository<Employee, UUID>{
         Integer count = namedJdbcTemplate.getJdbcTemplate().queryForObject(sql, Integer.class, new Object[]{phoneNumber, id});
         return count > 0;
     }
-    public boolean existsById(UUID id) {
-        String sql = "SELECT COUNT(*) FROM \"Employee\" WHERE id_employee = ?";
-        int count = namedJdbcTemplate.getJdbcTemplate().queryForObject(sql, Integer.class, id);
-        return count > 0;
-    }
     public boolean existsChecksLinkedTo(UUID id) {
         String sql = "SELECT COUNT(*) FROM \"Check\" WHERE id_employee = ?";
         int count = namedJdbcTemplate.getJdbcTemplate().queryForObject(sql, Integer.class, id);
