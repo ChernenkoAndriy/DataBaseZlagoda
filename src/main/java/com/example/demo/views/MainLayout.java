@@ -76,6 +76,9 @@ public class MainLayout extends AppLayout {
             sideMenu.addItem(new SideNavItem("Product Categories", "categories"));
             sideMenu.addItem(new SideNavItem("Product Items", "products"));
             sideMenu.addItem(new SideNavItem("Checks", "checks"));
+            sideMenu.addItem(new SideNavItem("Top Customers", "top-customers"));
+            sideMenu.addItem(new SideNavItem("Unsold Products", "unsold-products"));
+
         } else if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_CASHIER"))) {
             sideMenu.addItem(new SideNavItem("Customers", "customers"));
             sideMenu.addItem(new SideNavItem("Checks", "checks"));
